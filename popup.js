@@ -1,90 +1,78 @@
 /**
  * ChatDot Navigator — Popup Script
- * 管理插件设置：启用/禁用、滚动模式、云同步、语言、消息预览
+ * Modern iOS-style settings with full functional logic.
+ *
+ * 所有开关功能完整可用：
+ *  - enabled: 控制 content script 中侧边栏的显示/隐藏
+ *  - showPreview: 控制 hover 消息预览的启用/禁用
+ *  - showOutline: 控制大纲按钮和面板的显示/隐藏
+ *  - scrollMode: 控制滚动行为 smooth/instant
+ *  - cloudSync: 切换 storage.sync ↔ storage.local
+ *  - language: 实时切换 popup 界面语言 + 通知 content script
  */
 
 (function () {
   'use strict';
 
   // ============================================
-  // i18n 翻译表
+  // i18n
   // ============================================
   const I18N = {
     zh: {
-      nav_settings: '导航设置',
       enable_nav: '启用导航栏',
-      show_preview: '悬浮预览消息',
-      show_preview_desc: 'Hover 导航按钮时显示消息预览',
-      show_outline: '显示大纲',
-      show_outline_desc: '在侧边栏显示对话消息索引',
+      show_preview: '悬浮预览',
+      show_preview_desc: '导航按钮悬停显示消息内容',
+      show_outline: '消息大纲',
+      show_outline_desc: '侧边栏显示对话索引',
       scroll_mode: '滚动模式',
-      smooth: '流动',
-      instant: '跳跃',
-      cloud_sync: '云同步',
-      sync_settings: '同步设置到 Chrome',
-      sync_settings_desc: '在不同设备间同步偏好',
-      language: '语言 / Language',
-      status_active: '导航侧边栏已激活',
-      status_inactive: '导航侧边栏已停用',
-      inspired_by: '灵感来自',
-      star_project: '为项目点亮 ⭐',
+      smooth: '平滑',
+      instant: '瞬移',
+      sync_settings: '云同步设置',
+      sync_settings_desc: '跨设备同步偏好配置',
+      status_active: '导航已启用',
+      status_inactive: '导航已停用',
     },
     en: {
-      nav_settings: 'Navigation',
-      enable_nav: 'Enable Sidebar',
-      show_preview: 'Message Preview',
-      show_preview_desc: 'Show message preview on button hover',
-      show_outline: 'Show Outline',
-      show_outline_desc: 'Show message index in sidebar',
+      enable_nav: 'Enable Navigator',
+      show_preview: 'Hover Preview',
+      show_preview_desc: 'Show message preview on hover',
+      show_outline: 'Message Outline',
+      show_outline_desc: 'Show conversation index',
       scroll_mode: 'Scroll Mode',
       smooth: 'Smooth',
-      instant: 'Jump',
-      cloud_sync: 'Cloud Sync',
-      sync_settings: 'Sync to Chrome',
+      instant: 'Instant',
+      sync_settings: 'Cloud Sync',
       sync_settings_desc: 'Sync preferences across devices',
-      language: 'Language / 语言',
-      status_active: 'Navigation sidebar active',
-      status_inactive: 'Navigation sidebar disabled',
-      inspired_by: 'Inspired by',
-      star_project: 'Star on GitHub ⭐',
+      status_active: 'Navigator enabled',
+      status_inactive: 'Navigator disabled',
     },
     ja: {
-      nav_settings: 'ナビゲーション',
-      enable_nav: 'サイドバーを有効化',
-      show_preview: 'メッセージプレビュー',
-      show_preview_desc: 'ボタンホバー時にメッセージをプレビュー',
-      show_outline: 'アウトライン表示',
-      show_outline_desc: 'サイドバーにメッセージ一覧を表示',
-      scroll_mode: 'スクロールモード',
+      enable_nav: 'ナビを有効化',
+      show_preview: 'ホバープレビュー',
+      show_preview_desc: 'ホバーでメッセージを表示',
+      show_outline: 'アウトライン',
+      show_outline_desc: '会話インデックスを表示',
+      scroll_mode: 'スクロール',
       smooth: 'スムーズ',
       instant: 'ジャンプ',
-      cloud_sync: 'クラウド同期',
-      sync_settings: 'Chrome に同期',
-      sync_settings_desc: 'デバイス間で設定を同期',
-      language: '言語 / Language',
-      status_active: 'ナビサイドバー有効',
-      status_inactive: 'ナビサイドバー無効',
-      inspired_by: 'インスピレーション元',
-      star_project: 'GitHub でスター ⭐',
+      sync_settings: 'クラウド同期',
+      sync_settings_desc: 'デバイス間で同期',
+      status_active: 'ナビ有効',
+      status_inactive: 'ナビ無効',
     },
     ko: {
-      nav_settings: '내비게이션',
-      enable_nav: '사이드바 활성화',
-      show_preview: '메시지 미리보기',
-      show_preview_desc: '버튼 호버 시 메시지 미리보기',
-      show_outline: '개요 표시',
-      show_outline_desc: '사이드바에 메시지 색인 표시',
+      enable_nav: '네비 활성화',
+      show_preview: '호버 미리보기',
+      show_preview_desc: '호버 시 메시지 표시',
+      show_outline: '개요',
+      show_outline_desc: '대화 색인 표시',
       scroll_mode: '스크롤 모드',
       smooth: '부드럽게',
       instant: '점프',
-      cloud_sync: '클라우드 동기화',
-      sync_settings: 'Chrome에 동기화',
+      sync_settings: '클라우드 동기화',
       sync_settings_desc: '기기 간 설정 동기화',
-      language: '언어 / Language',
-      status_active: '내비게이션 사이드바 활성',
-      status_inactive: '내비게이션 사이드바 비활성',
-      inspired_by: '영감',
-      star_project: 'GitHub 스타 ⭐',
+      status_active: '네비 활성',
+      status_inactive: '네비 비활성',
     },
   };
 
@@ -93,145 +81,204 @@
   // ============================================
   const DEFAULTS = {
     enabled: true,
-    scrollMode: 'smooth',  // 'smooth' | 'instant'
-    cloudSync: true,
+    scrollMode: 'smooth',
+    cloudSync: false,
     language: 'zh',
     showPreview: true,
     showOutline: true,
   };
 
   // ============================================
-  // DOM 引用
+  // DOM
   // ============================================
-  const toggleEnabled = document.getElementById('toggle-enabled');
-  const togglePreview = document.getElementById('toggle-preview');
-  const toggleOutline = document.getElementById('toggle-outline');
-  const toggleSync = document.getElementById('toggle-sync');
-  const scrollModeContainer = document.getElementById('scroll-mode');
-  const langSelect = document.getElementById('lang-select');
-  const langSection = document.getElementById('lang-section');
-  const btnLang = document.getElementById('btn-lang');
-  const statusEl = document.getElementById('status');
+  const $ = (id) => document.getElementById(id);
+
+  const toggleEnabled = $('toggle-enabled');
+  const togglePreview = $('toggle-preview');
+  const toggleOutline = $('toggle-outline');
+  const toggleSync    = $('toggle-sync');
+  const scrollModeEl  = $('scroll-mode');
+  const btnLang       = $('btn-lang');
+  const langPopup     = $('lang-popup');
+  const statusEl      = $('status');
+
+  let currentLang = 'zh';
+
+  // ============================================
+  // Storage — 根据 cloudSync 选用 sync 或 local
+  // ============================================
+  function getStorage(useSync) {
+    if (useSync && chrome.storage.sync) return chrome.storage.sync;
+    return chrome.storage.local;
+  }
 
   // ============================================
   // 加载设置
   // ============================================
-  const storageAPI = chrome.storage.sync || chrome.storage.local;
+  // 先从 sync 读 cloudSync 标志，然后决定从哪里读其余设置
+  chrome.storage.sync.get({ cloudSync: DEFAULTS.cloudSync }, (syncData) => {
+    const useSync = syncData.cloudSync;
+    const storage = getStorage(useSync);
 
-  storageAPI.get(DEFAULTS, (data) => {
+    storage.get(DEFAULTS, (data) => {
+      // 合并 cloudSync（它总是存在 sync 里）
+      data.cloudSync = useSync;
+      applySettings(data);
+    });
+  });
+
+  function applySettings(data) {
     toggleEnabled.checked = data.enabled;
     togglePreview.checked = data.showPreview;
     toggleOutline.checked = data.showOutline;
-    toggleSync.checked = data.cloudSync;
-    langSelect.value = data.language;
+    toggleSync.checked    = data.cloudSync;
+    currentLang           = data.language || 'zh';
 
-    // 更新滚动模式按钮
-    scrollModeContainer.querySelectorAll('.seg-btn').forEach(btn => {
+    scrollModeEl.querySelectorAll('.seg-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.value === data.scrollMode);
     });
 
+    updateLangUI(currentLang);
+    applyI18n(currentLang);
     updateStatus(data.enabled);
-    applyI18n(data.language);
-  });
-
-  // ============================================
-  // 保存 & 通知
-  // ============================================
-  function saveSettings(changes) {
-    storageAPI.set(changes);
-    notifyContentScript(changes);
   }
 
-  function notifyContentScript(data) {
+  // ============================================
+  // 保存 & 通知 content script
+  // ============================================
+  function save(changes) {
+    const useSync = toggleSync.checked;
+    const storage = getStorage(useSync);
+    storage.set(changes);
+
+    // cloudSync 标志总是写到 sync
+    if ('cloudSync' in changes) {
+      chrome.storage.sync.set({ cloudSync: changes.cloudSync });
+      chrome.storage.local.set({ cloudSync: changes.cloudSync });
+    }
+
+    // 通知当前标签页
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0]?.id) {
-        chrome.tabs.sendMessage(tabs[0].id, { type: 'settingsChanged', ...data }).catch(() => {});
+        chrome.tabs.sendMessage(tabs[0].id, { type: 'settingsChanged', ...changes }).catch(() => {});
       }
     });
   }
 
   // ============================================
-  // 事件绑定
+  // 事件：启用/禁用 — 实际控制侧边栏显示
   // ============================================
-
-  // 启用/禁用
   toggleEnabled.addEventListener('change', () => {
     const enabled = toggleEnabled.checked;
-    saveSettings({ enabled });
+    save({ enabled });
     updateStatus(enabled);
   });
 
-  // 消息预览
+  // ============================================
+  // 事件：悬浮预览 — 控制 hover tooltip
+  // ============================================
   togglePreview.addEventListener('change', () => {
-    saveSettings({ showPreview: togglePreview.checked });
+    save({ showPreview: togglePreview.checked });
   });
 
-  // 大纲显示
+  // ============================================
+  // 事件：大纲 — 控制大纲按钮和面板显示
+  // ============================================
   toggleOutline.addEventListener('change', () => {
-    saveSettings({ showOutline: toggleOutline.checked });
+    save({ showOutline: toggleOutline.checked });
   });
 
-  // 云同步
+  // ============================================
+  // 事件：云同步 — 迁移数据 sync ↔ local
+  // ============================================
   toggleSync.addEventListener('change', () => {
     const cloudSync = toggleSync.checked;
-    // 如果关闭，切换到 local storage
-    chrome.storage.sync.set({ cloudSync });
-    chrome.storage.local.set({ cloudSync });
+    const from = getStorage(!cloudSync);
+    const to   = getStorage(cloudSync);
+
+    // 读取当前全部设置，迁移到目标 storage
+    from.get(DEFAULTS, (data) => {
+      data.cloudSync = cloudSync;
+      to.set(data);
+      // cloudSync 标志始终双写
+      chrome.storage.sync.set({ cloudSync });
+      chrome.storage.local.set({ cloudSync });
+    });
   });
 
-  // 滚动模式
-  scrollModeContainer.addEventListener('click', (e) => {
+  // ============================================
+  // 事件：滚动模式
+  // ============================================
+  scrollModeEl.addEventListener('click', (e) => {
     const btn = e.target.closest('.seg-btn');
     if (!btn) return;
-    scrollModeContainer.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+    scrollModeEl.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    saveSettings({ scrollMode: btn.dataset.value });
+    save({ scrollMode: btn.dataset.value });
   });
 
-  // 语言切换面板 toggle
-  btnLang.addEventListener('click', () => {
-    const visible = langSection.style.display !== 'none';
-    langSection.style.display = visible ? 'none' : 'block';
-    btnLang.classList.toggle('active', !visible);
+  // ============================================
+  // 事件：语言弹出菜单
+  // ============================================
+  btnLang.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isShown = langPopup.classList.contains('show');
+    langPopup.classList.toggle('show', !isShown);
+    btnLang.classList.toggle('active', !isShown);
   });
 
-  // 语言选择
-  langSelect.addEventListener('change', () => {
-    const lang = langSelect.value;
-    saveSettings({ language: lang });
+  // 点击语言选项
+  langPopup.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const opt = e.target.closest('.lang-option');
+    if (!opt) return;
+    const lang = opt.dataset.lang;
+    currentLang = lang;
+    save({ language: lang });
+    updateLangUI(lang);
     applyI18n(lang);
+    langPopup.classList.remove('show');
+    btnLang.classList.remove('active');
+  });
+
+  // 点击外部关闭
+  document.addEventListener('click', () => {
+    langPopup.classList.remove('show');
+    btnLang.classList.remove('active');
   });
 
   // ============================================
-  // i18n 应用
+  // UI 更新
   // ============================================
+  function updateLangUI(lang) {
+    langPopup.querySelectorAll('.lang-option').forEach(opt => {
+      const selected = opt.dataset.lang === lang;
+      opt.classList.toggle('selected', selected);
+      opt.querySelector('.lang-check').textContent = selected ? '✓' : '';
+    });
+  }
+
   function applyI18n(lang) {
     const t = I18N[lang] || I18N.zh;
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.dataset.i18n;
       if (t[key]) el.textContent = t[key];
     });
-    // 更新滚动模式按钮文字
-    scrollModeContainer.querySelectorAll('.seg-btn').forEach(btn => {
+    scrollModeEl.querySelectorAll('.seg-btn').forEach(btn => {
       const key = btn.dataset.i18n;
-      if (t[key]) btn.textContent = t[key];
+      if (I18N[lang]?.[key]) btn.textContent = I18N[lang][key];
     });
   }
 
-  // ============================================
-  // 状态更新
-  // ============================================
   function updateStatus(enabled) {
-    const statusSpan = statusEl.querySelector('[data-i18n]');
+    const t = I18N[currentLang] || I18N.zh;
     if (enabled) {
-      statusEl.innerHTML = '✅ <span data-i18n="status_active">' + (statusSpan?.textContent || '导航侧边栏已激活') + '</span>';
-      statusEl.className = 'status';
+      statusEl.innerHTML = `<span data-i18n="status_active">${t.status_active}</span>`;
+      statusEl.className = 'status active';
     } else {
-      statusEl.innerHTML = '⏸️ <span data-i18n="status_inactive">' + (statusSpan?.textContent || '导航侧边栏已停用') + '</span>';
+      statusEl.innerHTML = `<span data-i18n="status_inactive">${t.status_inactive}</span>`;
       statusEl.className = 'status inactive';
     }
-    // 重新应用当前语言
-    storageAPI.get({ language: 'zh' }, (d) => applyI18n(d.language));
   }
 
 })();

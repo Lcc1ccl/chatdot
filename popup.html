@@ -5,292 +5,283 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ChatDot Navigator</title>
   <style>
+    :root {
+      --bg: #f2f2f7;
+      --card: #ffffff;
+      --text-primary: #1c1c1e;
+      --text-secondary: #8e8e93;
+      --text-tertiary: #aeaeb2;
+      --separator: rgba(60, 60, 67, 0.06);
+      --accent: #007aff;
+      --accent-light: rgba(0, 122, 255, 0.08);
+      --green: #34c759;
+      --red: #ff3b30;
+      --switch-bg: #e9e9eb;
+      --shadow: 0 0.5px 0 rgba(0, 0, 0, 0.04);
+    }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      width: 320px;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #1a1a2e;
-      color: #e0e0e0;
-      padding: 20px;
-      font-size: 13px;
+      width: 340px;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      font-size: 14px;
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
     }
 
     /* ---- Header ---- */
     .header {
+      padding: 18px 20px 14px;
       display: flex;
       align-items: center;
       gap: 10px;
-      margin-bottom: 16px;
     }
-    .header .logo {
-      width: 32px; height: 32px;
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 16px;
-    }
-    .header h1 { font-size: 16px; font-weight: 600; color: #fff; }
-    .header .version {
-      font-size: 11px; color: #6e6e80; margin-left: auto;
-    }
-
-    /* ---- Header Icons ---- */
-    .header-icons {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-left: auto;
-    }
-    .header-icon-btn {
+    .header-logo {
       width: 28px; height: 28px;
-      background: transparent;
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 6px;
-      color: #8e8ea0;
-      cursor: pointer;
+      background: linear-gradient(135deg, #007aff, #5856d6);
+      border-radius: 7px;
       display: flex; align-items: center; justify-content: center;
-      transition: all 0.15s;
+      color: #fff; font-size: 14px; font-weight: 600;
     }
-    .header-icon-btn:hover {
-      background: rgba(255,255,255,0.06);
-      color: #fff;
+    .header-title {
+      font-size: 17px; font-weight: 600; color: var(--text-primary);
+      letter-spacing: -0.2px;
     }
-    .header-icon-btn.active {
-      background: rgba(99,102,241,0.15);
-      border-color: rgba(99,102,241,0.3);
-      color: #818cf8;
+    .header-right {
+      margin-left: auto;
+      display: flex; align-items: center; gap: 4px;
     }
-    .header-icon-btn svg { width: 16px; height: 16px; }
-
-    /* ---- Divider ---- */
-    .divider { height: 1px; background: rgba(255,255,255,0.06); margin: 14px 0; }
-
-    /* ---- Section ---- */
-    .section {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 10px;
-      padding: 14px;
-      margin-bottom: 12px;
+    .header-btn {
+      width: 32px; height: 32px;
+      border: none; background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+      position: relative;
     }
-    .section-title {
-      font-size: 12px;
-      font-weight: 600;
-      color: #8e8ea0;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 10px;
+    .header-btn:hover { background: var(--separator); }
+    .header-btn.active { color: var(--accent); }
+    .header-btn svg { width: 20px; height: 20px; }
+    .version-tag {
+      font-size: 11px; color: var(--text-tertiary);
+      font-weight: 500; margin-left: 2px;
     }
 
-    /* ---- Toggle Row ---- */
-    .setting-row {
+    /* ---- Card Section ---- */
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      margin: 0 16px 10px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    /* ---- Row ---- */
+    .row {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 6px 0;
+      padding: 12px 16px;
+      min-height: 44px;
     }
-    .setting-row + .setting-row { border-top: 1px solid rgba(255,255,255,0.04); }
-    .setting-label { color: #c0c0d0; font-size: 13px; }
-    .setting-desc { color: #6e6e80; font-size: 11px; margin-top: 2px; }
+    .row + .row { border-top: 1px solid var(--separator); margin-left: 16px; padding-left: 0; }
+    .row-content { flex: 1; min-width: 0; }
+    .row-label {
+      font-size: 14px; color: var(--text-primary);
+      font-weight: 400;
+    }
+    .row-desc {
+      font-size: 12px; color: var(--text-secondary);
+      margin-top: 1px; line-height: 1.3;
+    }
 
-    /* ---- Switch Toggle ---- */
-    .switch { position: relative; width: 38px; height: 20px; flex-shrink: 0; }
-    .switch input { opacity: 0; width: 0; height: 0; }
-    .slider {
-      position: absolute; cursor: pointer; inset: 0;
-      background: #3a3a4a; border-radius: 20px; transition: 0.25s;
+    /* ---- iOS Switch ---- */
+    .ios-switch {
+      position: relative; width: 51px; height: 31px;
+      flex-shrink: 0; margin-left: 12px;
     }
-    .slider::before {
-      content: ''; position: absolute;
-      width: 14px; height: 14px; left: 3px; bottom: 3px;
-      background: #fff; border-radius: 50%; transition: 0.25s;
+    .ios-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .ios-track {
+      position: absolute; inset: 0;
+      background: var(--switch-bg);
+      border-radius: 15.5px;
+      transition: background 0.25s ease;
+      cursor: pointer;
     }
-    input:checked + .slider { background: #6366f1; }
-    input:checked + .slider::before { transform: translateX(18px); }
+    .ios-track::after {
+      content: '';
+      position: absolute;
+      width: 27px; height: 27px;
+      left: 2px; top: 2px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15), 0 1px 1px rgba(0,0,0,0.06);
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .ios-switch input:checked + .ios-track { background: var(--green); }
+    .ios-switch input:checked + .ios-track::after { transform: translateX(20px); }
 
-    /* ---- Segmented Control (Scroll Mode) ---- */
+    /* ---- Segmented Control ---- */
+    .segmented-wrap { padding: 12px 16px; }
     .segmented {
       display: flex;
-      background: #2a2a3a;
+      background: var(--switch-bg);
       border-radius: 8px;
-      padding: 3px;
-      gap: 2px;
+      padding: 2px;
     }
     .seg-btn {
-      flex: 1; padding: 5px 10px;
-      font-size: 12px; font-weight: 500;
+      flex: 1; padding: 6px 0;
+      font-size: 13px; font-weight: 500;
       background: transparent; border: none;
-      color: #8e8ea0; cursor: pointer;
-      border-radius: 6px; transition: all 0.2s;
-      white-space: nowrap;
+      color: var(--text-secondary);
+      cursor: pointer; border-radius: 7px;
+      transition: all 0.2s;
     }
-    .seg-btn:hover { color: #c0c0d0; }
     .seg-btn.active {
-      background: #6366f1; color: #fff;
-      box-shadow: 0 2px 6px rgba(99,102,241,0.3);
+      background: var(--card);
+      color: var(--text-primary);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 0.5px 1px rgba(0,0,0,0.04);
     }
 
-    /* ---- Language Select ---- */
-    .lang-select {
-      background: #2a2a3a;
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 6px;
-      color: #e0e0e0;
-      font-size: 12px;
-      padding: 4px 8px;
-      cursor: pointer;
-      outline: none;
-    }
-    .lang-select:focus { border-color: #6366f1; }
-
-    /* ---- Status ---- */
+    /* ---- Status Bar ---- */
     .status {
-      margin-top: 6px;
-      padding: 8px 12px;
-      background: rgba(99,102,241,0.08);
-      border: 1px solid rgba(99,102,241,0.15);
-      border-radius: 8px;
-      font-size: 12px;
-      color: #a0a0ff;
+      margin: 6px 16px 16px;
+      padding: 10px;
+      border-radius: 10px;
       text-align: center;
+      font-size: 13px; font-weight: 500;
+      transition: all 0.25s;
+    }
+    .status.active {
+      background: rgba(52, 199, 89, 0.08);
+      color: var(--green);
     }
     .status.inactive {
-      background: rgba(255,100,100,0.06);
-      border-color: rgba(255,100,100,0.12);
-      color: #ff9090;
+      background: rgba(255, 59, 48, 0.06);
+      color: var(--red);
     }
 
-    /* ---- Footer ---- */
-    .footer {
-      margin-top: 14px; text-align: center;
-      font-size: 11px; color: #4a4a5a;
+    /* ---- Language Popup ---- */
+    .lang-popup {
+      position: absolute;
+      right: 0; top: 38px;
+      background: var(--card);
+      border-radius: 10px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.12), 0 0 0 0.5px rgba(0,0,0,0.04);
+      z-index: 100;
+      min-width: 120px;
+      padding: 4px;
+      opacity: 0;
+      transform: scale(0.9) translateY(-4px);
+      transform-origin: top right;
+      pointer-events: none;
+      transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .footer a { color: #6366f1; text-decoration: none; }
-    .footer a:hover { text-decoration: underline; }
-
-    .github-btn {
-      display: flex; align-items: center; justify-content: center; gap: 6px;
-      margin-top: 8px; padding: 6px 12px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 8px;
-      color: #8e8ea0; text-decoration: none;
-      font-size: 12px; transition: all 0.15s;
+    .lang-popup.show {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+      pointer-events: auto;
     }
-    .github-btn:hover {
-      background: rgba(255,255,255,0.08);
-      color: #e0e0e0;
+    .lang-option {
+      display: flex; align-items: center;
+      padding: 8px 12px;
+      font-size: 13px; color: var(--text-primary);
+      border: none; background: transparent;
+      width: 100%; text-align: left;
+      cursor: pointer; border-radius: 7px;
+      transition: background 0.1s;
+      gap: 8px;
     }
-    .github-btn svg { width: 14px; height: 14px; }
+    .lang-option:hover { background: var(--accent-light); }
+    .lang-option.selected { color: var(--accent); font-weight: 500; }
+    .lang-check { width: 16px; color: var(--accent); font-size: 14px; }
   </style>
 </head>
 <body>
+
   <!-- Header -->
   <div class="header">
-    <div class="logo">⚡</div>
-    <h1>ChatDot Nav</h1>
-    <div class="header-icons">
-      <!-- Dark Mode indicator -->
-      <button class="header-icon-btn" id="btn-dark" title="Deep/Light Mode">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    <div class="header-logo">⚡</div>
+    <span class="header-title">ChatDot</span>
+    <div class="header-right">
+      <button class="header-btn" id="btn-lang" title="Language">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <!-- Language Popup -->
+        <div class="lang-popup" id="lang-popup">
+          <button class="lang-option selected" data-lang="zh"><span class="lang-check">✓</span>简体中文</button>
+          <button class="lang-option" data-lang="en"><span class="lang-check"></span>English</button>
+          <button class="lang-option" data-lang="ja"><span class="lang-check"></span>日本語</button>
+          <button class="lang-option" data-lang="ko"><span class="lang-check"></span>한국어</button>
+        </div>
       </button>
-      <!-- Language -->
-      <button class="header-icon-btn" id="btn-lang" title="Language">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-      </button>
-      <span class="version">v1.0.0</span>
+      <span class="version-tag">v1.0</span>
     </div>
   </div>
 
-  <div class="divider"></div>
-
   <!-- 导航设置 -->
-  <div class="section">
-    <div class="section-title" data-i18n="nav_settings">导航设置</div>
-
-    <div class="setting-row">
-      <div>
-        <div class="setting-label" data-i18n="enable_nav">启用导航栏</div>
+  <div class="card">
+    <div class="row">
+      <div class="row-content">
+        <div class="row-label" data-i18n="enable_nav">启用导航栏</div>
       </div>
-      <div class="switch">
+      <div class="ios-switch">
         <input type="checkbox" id="toggle-enabled" checked>
-        <span class="slider"></span>
+        <label class="ios-track" for="toggle-enabled"></label>
       </div>
     </div>
-
-    <div class="setting-row">
-      <div>
-        <div class="setting-label" data-i18n="show_preview">悬浮预览消息</div>
-        <div class="setting-desc" data-i18n="show_preview_desc">Hover 导航按钮时显示消息预览</div>
+    <div class="row">
+      <div class="row-content">
+        <div class="row-label" data-i18n="show_preview">悬浮预览</div>
+        <div class="row-desc" data-i18n="show_preview_desc">导航按钮悬停显示消息内容</div>
       </div>
-      <div class="switch">
+      <div class="ios-switch">
         <input type="checkbox" id="toggle-preview" checked>
-        <span class="slider"></span>
+        <label class="ios-track" for="toggle-preview"></label>
       </div>
     </div>
-
-    <div class="setting-row">
-      <div>
-        <div class="setting-label" data-i18n="show_outline">显示大纲</div>
-        <div class="setting-desc" data-i18n="show_outline_desc">在侧边栏显示对话消息索引</div>
+    <div class="row">
+      <div class="row-content">
+        <div class="row-label" data-i18n="show_outline">消息大纲</div>
+        <div class="row-desc" data-i18n="show_outline_desc">侧边栏显示对话索引</div>
       </div>
-      <div class="switch">
+      <div class="ios-switch">
         <input type="checkbox" id="toggle-outline" checked>
-        <span class="slider"></span>
+        <label class="ios-track" for="toggle-outline"></label>
       </div>
     </div>
   </div>
 
   <!-- 滚动模式 -->
-  <div class="section">
-    <div class="section-title" data-i18n="scroll_mode">滚动模式</div>
-    <div class="segmented" id="scroll-mode">
-      <button class="seg-btn active" data-value="smooth" data-i18n="smooth">流动</button>
-      <button class="seg-btn" data-value="instant" data-i18n="instant">跳跃</button>
+  <div class="card">
+    <div class="segmented-wrap">
+      <div class="row-label" data-i18n="scroll_mode" style="margin-bottom:8px;font-weight:500;">滚动模式</div>
+      <div class="segmented" id="scroll-mode">
+        <button class="seg-btn active" data-value="smooth" data-i18n="smooth">平滑</button>
+        <button class="seg-btn" data-value="instant" data-i18n="instant">瞬移</button>
+      </div>
     </div>
   </div>
 
   <!-- 云同步 -->
-  <div class="section">
-    <div class="section-title" data-i18n="cloud_sync">云同步</div>
-    <div class="setting-row">
-      <div>
-        <div class="setting-label" data-i18n="sync_settings">同步设置到 Chrome</div>
-        <div class="setting-desc" data-i18n="sync_settings_desc">在不同设备间同步偏好</div>
+  <div class="card">
+    <div class="row">
+      <div class="row-content">
+        <div class="row-label" data-i18n="sync_settings">云同步设置</div>
+        <div class="row-desc" data-i18n="sync_settings_desc">跨设备同步偏好配置</div>
       </div>
-      <div class="switch">
-        <input type="checkbox" id="toggle-sync" checked>
-        <span class="slider"></span>
+      <div class="ios-switch">
+        <input type="checkbox" id="toggle-sync">
+        <label class="ios-track" for="toggle-sync"></label>
       </div>
     </div>
   </div>
 
-  <!-- 语言选择浮层 -->
-  <div class="section" id="lang-section" style="display:none;">
-    <div class="section-title" data-i18n="language">语言 / Language</div>
-    <div class="setting-row">
-      <select class="lang-select" id="lang-select">
-        <option value="zh">简体中文</option>
-        <option value="en">English</option>
-        <option value="ja">日本語</option>
-        <option value="ko">한국어</option>
-      </select>
-    </div>
-  </div>
-
-  <!-- Status -->
-  <div id="status" class="status">✅ <span data-i18n="status_active">导航侧边栏已激活</span></div>
-
-  <div class="divider"></div>
-
-  <!-- Footer -->
-  <div class="footer">
-    <span data-i18n="inspired_by">灵感来自</span> <a href="https://github.com/YishenTu/claudian" target="_blank">Claudian</a>
-    <a class="github-btn" href="https://github.com/Lcc1ccl/chatdot" target="_blank">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
-      <span data-i18n="star_project">为项目点亮 ⭐</span>
-    </a>
+  <!-- 状态指示 -->
+  <div id="status" class="status active">
+    <span data-i18n="status_active">导航已启用</span>
   </div>
 
   <script src="popup.js"></script>

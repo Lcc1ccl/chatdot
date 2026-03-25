@@ -42,29 +42,41 @@
 
   if (chrome?.runtime?.onMessage) {
     chrome.runtime.onMessage.addListener((msg) => {
-      if (msg.type === 'settingsChanged') {
-        if (msg.enabled !== undefined) SETTINGS.enabled = msg.enabled;
-        if (msg.scrollMode !== undefined) SETTINGS.scrollMode = msg.scrollMode;
-        if (msg.showPreview !== undefined) SETTINGS.showPreview = msg.showPreview;
-        if (msg.showOutline !== undefined) SETTINGS.showOutline = msg.showOutline;
+      if (msg.type !== 'settingsChanged') return;
 
-        if (window.__chatdotNav) {
-          if (SETTINGS.enabled) {
-            window.__chatdotNav.init();
-          } else {
-            window.__chatdotNav.destroy();
-          }
-          // 大纲开关立即生效
-          if (window.__chatdotNav.outlinePanel) {
-            window.__chatdotNav.outlinePanel.style.display =
-              SETTINGS.showOutline ? '' : 'none';
-            if (window.__chatdotNav.outlineToggleBtn) {
-              window.__chatdotNav.outlineToggleBtn.style.display =
-                SETTINGS.showOutline ? '' : 'none';
-            }
-          }
+      // 逐项更新设置
+      if (msg.enabled !== undefined) SETTINGS.enabled = msg.enabled;
+      if (msg.scrollMode !== undefined) SETTINGS.scrollMode = msg.scrollMode;
+      if (msg.showPreview !== undefined) SETTINGS.showPreview = msg.showPreview;
+      if (msg.showOutline !== undefined) SETTINGS.showOutline = msg.showOutline;
+
+      const nav = window.__chatdotNav;
+      if (!nav) return;
+
+      // ── enabled 开关：销毁或重建 ──
+      if (msg.enabled !== undefined) {
+        if (SETTINGS.enabled) {
+          if (!nav.container) nav.init(); // 只在未初始化时重建
+        } else {
+          nav.destroy();
         }
       }
+
+      // ── 大纲开关：即时显示/隐藏 ──
+      if (msg.showOutline !== undefined) {
+        if (nav.outlineToggleBtn) {
+          nav.outlineToggleBtn.style.display = SETTINGS.showOutline ? '' : 'none';
+        }
+        if (nav.outlinePanel) {
+          if (!SETTINGS.showOutline) {
+            nav.outlinePanel.classList.remove('open');
+            nav.outlineOpen = false;
+          }
+          nav.outlinePanel.style.display = SETTINGS.showOutline ? '' : 'none';
+        }
+      }
+
+      // ── 预览开关：下次 hover 时依据 SETTINGS.showPreview 判断，无需额外操作 ──
     });
   }
 
