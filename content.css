@@ -159,8 +159,8 @@ html[data-theme="dark"] .chatdot-nav-counter,
   right: 42px;
   top: 50%;
   transform: translateY(-50%) scale(0.92);
-  max-width: 280px;
-  min-width: 120px;
+  max-width: 400px;
+  min-width: 200px;
   padding: 8px 12px;
   background: #ffffff;
   border: 1px solid rgba(0, 0, 0, 0.08);
@@ -481,7 +481,7 @@ html[data-theme="dark"] .chatdot-outline-item.active .chatdot-outline-num,
     height: 15px;
   }
   .chatdot-msg-preview {
-    max-width: 200px;
+    max-width: 300px;
   }
   .chatdot-outline-panel {
     right: 48px;

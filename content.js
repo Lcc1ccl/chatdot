@@ -251,7 +251,16 @@
 
           wrapper.addEventListener('mouseenter', () => {
             if (!SETTINGS.showPreview) { previewEl.innerHTML = ''; return; }
+            // 抑制浏览器原生 title tooltip
+            btn.dataset.originalTitle = btn.title;
+            btn.title = '';
             this.updatePreview(preview, previewEl);
+          });
+          wrapper.addEventListener('mouseleave', () => {
+            // 恢复原生 title
+            if (btn.dataset.originalTitle) {
+              btn.title = btn.dataset.originalTitle;
+            }
           });
         } else {
           this.container.appendChild(btn);
