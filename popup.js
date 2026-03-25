@@ -15,6 +15,8 @@
       enable_nav: '启用导航栏',
       show_preview: '悬浮预览消息',
       show_preview_desc: 'Hover 导航按钮时显示消息预览',
+      show_outline: '显示大纲',
+      show_outline_desc: '在侧边栏显示对话消息索引',
       scroll_mode: '滚动模式',
       smooth: '流动',
       instant: '跳跃',
@@ -32,6 +34,8 @@
       enable_nav: 'Enable Sidebar',
       show_preview: 'Message Preview',
       show_preview_desc: 'Show message preview on button hover',
+      show_outline: 'Show Outline',
+      show_outline_desc: 'Show message index in sidebar',
       scroll_mode: 'Scroll Mode',
       smooth: 'Smooth',
       instant: 'Jump',
@@ -49,6 +53,8 @@
       enable_nav: 'サイドバーを有効化',
       show_preview: 'メッセージプレビュー',
       show_preview_desc: 'ボタンホバー時にメッセージをプレビュー',
+      show_outline: 'アウトライン表示',
+      show_outline_desc: 'サイドバーにメッセージ一覧を表示',
       scroll_mode: 'スクロールモード',
       smooth: 'スムーズ',
       instant: 'ジャンプ',
@@ -66,6 +72,8 @@
       enable_nav: '사이드바 활성화',
       show_preview: '메시지 미리보기',
       show_preview_desc: '버튼 호버 시 메시지 미리보기',
+      show_outline: '개요 표시',
+      show_outline_desc: '사이드바에 메시지 색인 표시',
       scroll_mode: '스크롤 모드',
       smooth: '부드럽게',
       instant: '점프',
@@ -89,6 +97,7 @@
     cloudSync: true,
     language: 'zh',
     showPreview: true,
+    showOutline: true,
   };
 
   // ============================================
@@ -96,6 +105,7 @@
   // ============================================
   const toggleEnabled = document.getElementById('toggle-enabled');
   const togglePreview = document.getElementById('toggle-preview');
+  const toggleOutline = document.getElementById('toggle-outline');
   const toggleSync = document.getElementById('toggle-sync');
   const scrollModeContainer = document.getElementById('scroll-mode');
   const langSelect = document.getElementById('lang-select');
@@ -111,6 +121,7 @@
   storageAPI.get(DEFAULTS, (data) => {
     toggleEnabled.checked = data.enabled;
     togglePreview.checked = data.showPreview;
+    toggleOutline.checked = data.showOutline;
     toggleSync.checked = data.cloudSync;
     langSelect.value = data.language;
 
@@ -153,6 +164,11 @@
   // 消息预览
   togglePreview.addEventListener('change', () => {
     saveSettings({ showPreview: togglePreview.checked });
+  });
+
+  // 大纲显示
+  toggleOutline.addEventListener('change', () => {
+    saveSettings({ showOutline: toggleOutline.checked });
   });
 
   // 云同步

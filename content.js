@@ -10,6 +10,7 @@
  *  5. SPA 路由感知，切换对话自动重置
  *  6. 消息预览 tooltip（hover ⬆/⬇ 按钮时向左延展显示消息）
  *  7. 可配置滚动模式（smooth / instant）
+ *  8. 大纲面板（点击展开，列出所有用户消息索引）
  */
 
 (function () {
@@ -25,32 +26,42 @@
     enabled: true,
     scrollMode: 'smooth',
     showPreview: true,
+    showOutline: true,
   };
 
-  // 从 storage 加载设置
   function loadSettings(callback) {
     if (chrome?.storage?.sync) {
       chrome.storage.sync.get(SETTINGS, (data) => {
         Object.assign(SETTINGS, data);
         if (callback) callback();
       });
+    } else {
+      if (callback) callback();
     }
   }
 
-  // 监听 popup 发来的设置变更
   if (chrome?.runtime?.onMessage) {
     chrome.runtime.onMessage.addListener((msg) => {
       if (msg.type === 'settingsChanged') {
         if (msg.enabled !== undefined) SETTINGS.enabled = msg.enabled;
         if (msg.scrollMode !== undefined) SETTINGS.scrollMode = msg.scrollMode;
         if (msg.showPreview !== undefined) SETTINGS.showPreview = msg.showPreview;
+        if (msg.showOutline !== undefined) SETTINGS.showOutline = msg.showOutline;
 
-        // 根据 enabled 状态显示/隐藏侧边栏
         if (window.__chatdotNav) {
           if (SETTINGS.enabled) {
             window.__chatdotNav.init();
           } else {
             window.__chatdotNav.destroy();
+          }
+          // 大纲开关立即生效
+          if (window.__chatdotNav.outlinePanel) {
+            window.__chatdotNav.outlinePanel.style.display =
+              SETTINGS.showOutline ? '' : 'none';
+            if (window.__chatdotNav.outlineToggleBtn) {
+              window.__chatdotNav.outlineToggleBtn.style.display =
+                SETTINGS.showOutline ? '' : 'none';
+            }
           }
         }
       }
@@ -58,7 +69,7 @@
   }
 
   // ============================================
-  // 1. 选择器配置 — 多层降级策略
+  // 1. 选择器配置
   // ============================================
 
   const PLATFORM_SELECTORS = {
@@ -73,10 +84,6 @@
         '[data-message-author-role="user"]',
         'div[data-message-author-role="user"]',
       ],
-      conversationTurn: [
-        'article[data-testid^="conversation-turn-"]',
-        '[data-message-id]',
-      ],
     },
   };
 
@@ -89,7 +96,7 @@
       try {
         const els = root.querySelectorAll(sel);
         if (els.length > 0) return Array.from(els);
-      } catch (_) { /* skip */ }
+      } catch (_) {}
     }
     return [];
   }
@@ -99,7 +106,7 @@
       try {
         const el = document.querySelector(sel);
         if (el && el.scrollHeight > el.clientHeight) return el;
-      } catch (_) { /* skip */ }
+      } catch (_) {}
     }
     const main = document.querySelector('main');
     if (main) {
@@ -109,9 +116,7 @@
         if (
           (s.overflowY === 'auto' || s.overflowY === 'scroll') &&
           el.scrollHeight > el.clientHeight + 100
-        ) {
-          return el;
-        }
+        ) return el;
       }
     }
     return null;
@@ -121,11 +126,7 @@
     return queryAll(PLATFORM_SELECTORS.chatgpt.userMessage);
   }
 
-  /**
-   * 提取消息元素的纯文本内容（截断到 maxLen）
-   */
-  function extractMessageText(msgEl, maxLen = 120) {
-    // ChatGPT 消息文本通常在 .whitespace-pre-wrap 或深层的 div/p 中
+  function extractMessageText(msgEl, maxLen = 80) {
     const textEl = msgEl.querySelector('.whitespace-pre-wrap')
       || msgEl.querySelector('[data-message-content]')
       || msgEl.querySelector('div > div');
@@ -143,6 +144,7 @@
     chevronUp: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>',
     chevronDown: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>',
     chevronsDown: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 13 12 18 17 13"/><polyline points="7 6 12 11 17 6"/></svg>',
+    list: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>',
   };
 
   // ============================================
@@ -155,14 +157,16 @@
       this.counterEl = null;
       this.prevPreview = null;
       this.nextPreview = null;
+      this.outlinePanel = null;
+      this.outlineList = null;
+      this.outlineToggleBtn = null;
+      this.outlineOpen = false;
       this.scrollContainer = null;
       this.scrollHandler = null;
       this.observer = null;
       this.retryCount = 0;
       this.maxRetries = 30;
     }
-
-    // ---- 初始化 ----
 
     init() {
       if (!SETTINGS.enabled) return;
@@ -192,10 +196,28 @@
     createUI() {
       const existing = document.querySelector('.chatdot-nav-sidebar');
       if (existing) existing.remove();
+      const existingOutline = document.querySelector('.chatdot-outline-panel');
+      if (existingOutline) existingOutline.remove();
 
       this.container = document.createElement('div');
       this.container.className = 'chatdot-nav-sidebar';
 
+      // ---- 大纲按钮（顶部）----
+      const outlineBtn = document.createElement('button');
+      outlineBtn.className = 'chatdot-nav-btn chatdot-nav-btn-outline';
+      outlineBtn.innerHTML = ICONS.list;
+      outlineBtn.title = '大纲';
+      outlineBtn.setAttribute('aria-label', '大纲');
+      outlineBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.toggleOutline();
+      });
+      this.outlineToggleBtn = outlineBtn;
+      if (!SETTINGS.showOutline) outlineBtn.style.display = 'none';
+      this.container.appendChild(outlineBtn);
+
+      // ---- 导航按钮 ----
       const buttons = [
         { cls: 'chatdot-nav-btn-top', icon: ICONS.chevronsUp, label: '跳到顶部', action: () => this.scrollToTop(), preview: false },
         { cls: 'chatdot-nav-btn-prev', icon: ICONS.chevronUp, label: '上一条用户消息', action: () => this.scrollToMessage('prev'), preview: 'prev' },
@@ -215,14 +237,11 @@
           action();
         });
 
-        // 如果需要消息预览，用 wrapper 包裹
         if (preview) {
           const wrapper = document.createElement('div');
           wrapper.className = 'chatdot-nav-btn-wrapper';
-
           const previewEl = document.createElement('div');
           previewEl.className = 'chatdot-msg-preview';
-
           wrapper.appendChild(previewEl);
           wrapper.appendChild(btn);
           this.container.appendChild(wrapper);
@@ -230,19 +249,14 @@
           if (preview === 'prev') this.prevPreview = previewEl;
           if (preview === 'next') this.nextPreview = previewEl;
 
-          // Hover 时更新预览内容
           wrapper.addEventListener('mouseenter', () => {
-            if (!SETTINGS.showPreview) {
-              previewEl.innerHTML = '';
-              return;
-            }
+            if (!SETTINGS.showPreview) { previewEl.innerHTML = ''; return; }
             this.updatePreview(preview, previewEl);
           });
         } else {
           this.container.appendChild(btn);
         }
 
-        // 计数器：放在 prev 按钮之后
         if (i === 1) {
           this.counterEl = document.createElement('div');
           this.counterEl.className = 'chatdot-nav-counter';
@@ -252,16 +266,111 @@
       });
 
       document.body.appendChild(this.container);
+
+      // ---- 大纲面板 ----
+      this.createOutlinePanel();
     }
 
-    // ---- 消息预览更新 ----
+    // ---- 大纲面板 ----
+
+    createOutlinePanel() {
+      const panel = document.createElement('div');
+      panel.className = 'chatdot-outline-panel';
+
+      const header = document.createElement('div');
+      header.className = 'chatdot-outline-header';
+
+      const title = document.createElement('span');
+      title.className = 'chatdot-outline-title';
+      title.textContent = '大纲';
+
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'chatdot-outline-close';
+      closeBtn.innerHTML = '×';
+      closeBtn.addEventListener('click', () => this.toggleOutline(false));
+
+      header.appendChild(title);
+      header.appendChild(closeBtn);
+      panel.appendChild(header);
+
+      const list = document.createElement('div');
+      list.className = 'chatdot-outline-list';
+      panel.appendChild(list);
+
+      this.outlineList = list;
+      this.outlinePanel = panel;
+
+      if (!SETTINGS.showOutline) panel.style.display = 'none';
+
+      document.body.appendChild(panel);
+    }
+
+    toggleOutline(forceTo) {
+      this.outlineOpen = (forceTo !== undefined) ? forceTo : !this.outlineOpen;
+      this.outlinePanel.classList.toggle('open', this.outlineOpen);
+      this.outlineToggleBtn.classList.toggle('active', this.outlineOpen);
+      if (this.outlineOpen) {
+        this.refreshOutline();
+      }
+    }
+
+    refreshOutline() {
+      if (!this.outlineList) return;
+      const messages = findUserMessages();
+      this.outlineList.innerHTML = '';
+
+      if (messages.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'chatdot-outline-empty';
+        empty.textContent = '暂无用户消息';
+        this.outlineList.appendChild(empty);
+        return;
+      }
+
+      // 找当前可见索引
+      const scrollTop = this.scrollContainer.scrollTop;
+      const containerRect = this.scrollContainer.getBoundingClientRect();
+      let activeIdx = 0;
+      for (let i = 0; i < messages.length; i++) {
+        const msgTop = messages[i].getBoundingClientRect().top - containerRect.top + scrollTop;
+        if (msgTop <= scrollTop + 80) activeIdx = i;
+      }
+
+      messages.forEach((msg, idx) => {
+        const item = document.createElement('div');
+        item.className = 'chatdot-outline-item';
+        if (idx === activeIdx) item.classList.add('active');
+
+        const num = document.createElement('span');
+        num.className = 'chatdot-outline-num';
+        num.textContent = idx + 1;
+
+        const text = document.createElement('span');
+        text.className = 'chatdot-outline-text';
+        text.textContent = extractMessageText(msg, 60);
+
+        item.appendChild(num);
+        item.appendChild(text);
+
+        item.addEventListener('click', () => {
+          const msgTop = msg.getBoundingClientRect().top - containerRect.top + this.scrollContainer.scrollTop;
+          this.scrollContainer.scrollTo({ top: msgTop - 10, behavior: SETTINGS.scrollMode });
+          this.highlightMessage(msg);
+          // 更新 active 状态
+          this.outlineList.querySelectorAll('.chatdot-outline-item').forEach(el =>
+            el.classList.remove('active'));
+          item.classList.add('active');
+        });
+
+        this.outlineList.appendChild(item);
+      });
+    }
+
+    // ---- 消息预览 ----
 
     updatePreview(direction, previewEl) {
       const messages = findUserMessages();
-      if (messages.length === 0) {
-        previewEl.innerHTML = '';
-        return;
-      }
+      if (messages.length === 0) { previewEl.innerHTML = ''; return; }
 
       const scrollTop = this.scrollContainer.scrollTop;
       const containerRect = this.scrollContainer.getBoundingClientRect();
@@ -272,18 +381,12 @@
       if (direction === 'prev') {
         for (let i = messages.length - 1; i >= 0; i--) {
           const msgTop = messages[i].getBoundingClientRect().top - containerRect.top + scrollTop;
-          if (msgTop < scrollTop - threshold) {
-            target = messages[i];
-            break;
-          }
+          if (msgTop < scrollTop - threshold) { target = messages[i]; break; }
         }
       } else {
         for (let i = 0; i < messages.length; i++) {
           const msgTop = messages[i].getBoundingClientRect().top - containerRect.top + scrollTop;
-          if (msgTop > scrollTop + threshold) {
-            target = messages[i];
-            break;
-          }
+          if (msgTop > scrollTop + threshold) { target = messages[i]; break; }
         }
       }
 
@@ -307,11 +410,11 @@
       this.scrollHandler = () => {
         this.updateVisibility();
         this.updateCounter();
+        // 如果大纲面板打开，实时更新 active
+        if (this.outlineOpen) this.refreshOutline();
       };
       this.scrollContainer.addEventListener('scroll', this.scrollHandler, { passive: true });
     }
-
-    // ---- 可见性 ----
 
     updateVisibility() {
       if (!this.scrollContainer || !this.container) return;
@@ -320,28 +423,19 @@
       this.container.classList.toggle('visible', isScrollable);
     }
 
-    // ---- 计数器 ----
-
     updateCounter() {
       if (!this.counterEl) return;
       const messages = findUserMessages();
       const total = messages.length;
-      if (total === 0) {
-        this.counterEl.textContent = '';
-        return;
-      }
+      if (total === 0) { this.counterEl.textContent = ''; return; }
 
       const scrollTop = this.scrollContainer.scrollTop;
       const containerRect = this.scrollContainer.getBoundingClientRect();
       let current = 0;
-
       for (let i = 0; i < messages.length; i++) {
         const msgTop = messages[i].getBoundingClientRect().top - containerRect.top + scrollTop;
-        if (msgTop <= scrollTop + 60) {
-          current = i + 1;
-        }
+        if (msgTop <= scrollTop + 60) current = i + 1;
       }
-
       this.counterEl.textContent = current > 0 ? `${current}/${total}` : `${total}`;
     }
 
@@ -358,7 +452,6 @@
     scrollToMessage(direction) {
       const messages = findUserMessages();
       if (messages.length === 0) return;
-
       const scrollTop = this.scrollContainer.scrollTop;
       const containerRect = this.scrollContainer.getBoundingClientRect();
       const threshold = 30;
@@ -387,8 +480,6 @@
       }
     }
 
-    // ---- 高亮 ----
-
     highlightMessage(el) {
       el.classList.remove('chatdot-highlight');
       void el.offsetWidth;
@@ -401,21 +492,17 @@
     observeDOM() {
       const target = this.scrollContainer.parentElement || document.querySelector('main');
       if (!target) return;
-
       this.observer = new MutationObserver((mutations) => {
         let hasChange = false;
         for (const m of mutations) {
-          if (m.type === 'childList' && m.addedNodes.length > 0) {
-            hasChange = true;
-            break;
-          }
+          if (m.type === 'childList' && m.addedNodes.length > 0) { hasChange = true; break; }
         }
         if (hasChange) {
           this.updateVisibility();
           this.updateCounter();
+          if (this.outlineOpen) this.refreshOutline();
         }
       });
-
       this.observer.observe(target, { childList: true, subtree: true });
     }
 
@@ -424,7 +511,6 @@
     watchRouteChange() {
       let lastUrl = location.href;
       const self = this;
-
       const onRouteChange = () => {
         if (location.href !== lastUrl) {
           lastUrl = location.href;
@@ -432,17 +518,13 @@
           self.reinitialize();
         }
       };
-
       window.addEventListener('popstate', onRouteChange);
-
       const origPush = history.pushState;
       const origReplace = history.replaceState;
-
       history.pushState = function (...args) {
         origPush.apply(this, args);
         setTimeout(onRouteChange, 300);
       };
-
       history.replaceState = function (...args) {
         origReplace.apply(this, args);
         setTimeout(onRouteChange, 300);
@@ -455,23 +537,19 @@
       setTimeout(() => this.init(), 500);
     }
 
-    // ---- 清理 ----
-
     destroy() {
       if (this.scrollHandler && this.scrollContainer) {
         this.scrollContainer.removeEventListener('scroll', this.scrollHandler);
       }
-      if (this.observer) {
-        this.observer.disconnect();
-        this.observer = null;
-      }
-      if (this.container) {
-        this.container.remove();
-        this.container = null;
-      }
+      if (this.observer) { this.observer.disconnect(); this.observer = null; }
+      if (this.container) { this.container.remove(); this.container = null; }
+      if (this.outlinePanel) { this.outlinePanel.remove(); this.outlinePanel = null; }
       this.counterEl = null;
       this.prevPreview = null;
       this.nextPreview = null;
+      this.outlineList = null;
+      this.outlineToggleBtn = null;
+      this.outlineOpen = false;
       this.scrollContainer = null;
     }
   }
