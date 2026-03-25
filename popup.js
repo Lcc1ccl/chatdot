@@ -1,5 +1,5 @@
 /**
- * ChatDot Navigator — Popup Script
+ * ChatDot — Popup Script
  * Modern iOS-style settings with full functional logic.
  *
  * 所有开关功能完整可用：
@@ -7,7 +7,6 @@
  *  - showPreview: 控制 hover 消息预览的启用/禁用
  *  - showOutline: 控制大纲按钮和面板的显示/隐藏
  *  - scrollMode: 控制滚动行为 smooth/instant
- *  - cloudSync: 切换 storage.sync ↔ storage.local
  *  - language: 实时切换 popup 界面语言 + 通知 content script
  */
 
@@ -27,13 +26,14 @@
       scroll_mode: '滚动模式',
       smooth: '平滑',
       instant: '瞬移',
-      sync_settings: '云同步设置',
-      sync_settings_desc: '跨设备同步偏好配置',
       status_active: '导航已启用',
       status_inactive: '导航已停用',
+      version: '版本',
+      official_doc: '官方文档',
+      star_project: '为项目点亮 ⭐'
     },
     en: {
-      enable_nav: 'Enable Navigator',
+      enable_nav: 'Enable Navigation',
       show_preview: 'Hover Preview',
       show_preview_desc: 'Show message preview on hover',
       show_outline: 'Message Outline',
@@ -41,10 +41,11 @@
       scroll_mode: 'Scroll Mode',
       smooth: 'Smooth',
       instant: 'Instant',
-      sync_settings: 'Cloud Sync',
-      sync_settings_desc: 'Sync preferences across devices',
-      status_active: 'Navigator enabled',
-      status_inactive: 'Navigator disabled',
+      status_active: 'Navigation enabled',
+      status_inactive: 'Navigation disabled',
+      version: 'Version',
+      official_doc: 'Official Docs',
+      star_project: 'Star on GitHub'
     },
     ja: {
       enable_nav: 'ナビを有効化',
@@ -55,10 +56,11 @@
       scroll_mode: 'スクロール',
       smooth: 'スムーズ',
       instant: 'ジャンプ',
-      sync_settings: 'クラウド同期',
-      sync_settings_desc: 'デバイス間で同期',
       status_active: 'ナビ有効',
       status_inactive: 'ナビ無効',
+      version: 'バージョン',
+      official_doc: '公式ドキュメント',
+      star_project: 'GitHubでスターを ✨'
     },
     ko: {
       enable_nav: '네비 활성화',
@@ -69,10 +71,11 @@
       scroll_mode: '스크롤 모드',
       smooth: '부드럽게',
       instant: '점프',
-      sync_settings: '클라우드 동기화',
-      sync_settings_desc: '기기 간 설정 동기화',
       status_active: '네비 활성',
       status_inactive: '네비 비활성',
+      version: '버전',
+      official_doc: '공식 문서',
+      star_project: '프로젝트에 별을 ⭐'
     },
   };
 
@@ -82,7 +85,6 @@
   const DEFAULTS = {
     enabled: true,
     scrollMode: 'smooth',
-    cloudSync: false,
     language: 'zh',
     showPreview: true,
     showOutline: true,
@@ -96,7 +98,6 @@
   const toggleEnabled = $('toggle-enabled');
   const togglePreview = $('toggle-preview');
   const toggleOutline = $('toggle-outline');
-  const toggleSync    = $('toggle-sync');
   const scrollModeEl  = $('scroll-mode');
   const btnLang       = $('btn-lang');
   const langPopup     = $('lang-popup');
@@ -104,34 +105,24 @@
 
   let currentLang = 'zh';
 
-  // ============================================
-  // Storage — 根据 cloudSync 选用 sync 或 local
-  // ============================================
-  function getStorage(useSync) {
-    if (useSync && chrome.storage.sync) return chrome.storage.sync;
-    return chrome.storage.local;
+  // 自动获取版本号
+  const manifestData = chrome.runtime.getManifest();
+  const versionNumEl = $('version-num');
+  if (versionNumEl && manifestData) {
+    versionNumEl.textContent = manifestData.version || '1.0.0';
   }
 
   // ============================================
   // 加载设置
   // ============================================
-  // 先从 sync 读 cloudSync 标志，然后决定从哪里读其余设置
-  chrome.storage.sync.get({ cloudSync: DEFAULTS.cloudSync }, (syncData) => {
-    const useSync = syncData.cloudSync;
-    const storage = getStorage(useSync);
-
-    storage.get(DEFAULTS, (data) => {
-      // 合并 cloudSync（它总是存在 sync 里）
-      data.cloudSync = useSync;
-      applySettings(data);
-    });
+  chrome.storage.local.get(DEFAULTS, (data) => {
+    applySettings(data);
   });
 
   function applySettings(data) {
     toggleEnabled.checked = data.enabled;
     togglePreview.checked = data.showPreview;
     toggleOutline.checked = data.showOutline;
-    toggleSync.checked    = data.cloudSync;
     currentLang           = data.language || 'zh';
 
     scrollModeEl.querySelectorAll('.seg-btn').forEach(btn => {
@@ -147,15 +138,7 @@
   // 保存 & 通知 content script
   // ============================================
   function save(changes) {
-    const useSync = toggleSync.checked;
-    const storage = getStorage(useSync);
-    storage.set(changes);
-
-    // cloudSync 标志总是写到 sync
-    if ('cloudSync' in changes) {
-      chrome.storage.sync.set({ cloudSync: changes.cloudSync });
-      chrome.storage.local.set({ cloudSync: changes.cloudSync });
-    }
+    chrome.storage.local.set(changes);
 
     // 通知当前标签页
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -186,24 +169,6 @@
   // ============================================
   toggleOutline.addEventListener('change', () => {
     save({ showOutline: toggleOutline.checked });
-  });
-
-  // ============================================
-  // 事件：云同步 — 迁移数据 sync ↔ local
-  // ============================================
-  toggleSync.addEventListener('change', () => {
-    const cloudSync = toggleSync.checked;
-    const from = getStorage(!cloudSync);
-    const to   = getStorage(cloudSync);
-
-    // 读取当前全部设置，迁移到目标 storage
-    from.get(DEFAULTS, (data) => {
-      data.cloudSync = cloudSync;
-      to.set(data);
-      // cloudSync 标志始终双写
-      chrome.storage.sync.set({ cloudSync });
-      chrome.storage.local.set({ cloudSync });
-    });
   });
 
   // ============================================
@@ -274,10 +239,10 @@
     const t = I18N[currentLang] || I18N.zh;
     if (enabled) {
       statusEl.innerHTML = `<span data-i18n="status_active">${t.status_active}</span>`;
-      statusEl.className = 'status active';
+      statusEl.className = 'status-bar active';
     } else {
       statusEl.innerHTML = `<span data-i18n="status_inactive">${t.status_inactive}</span>`;
-      statusEl.className = 'status inactive';
+      statusEl.className = 'status-bar inactive';
     }
   }
 

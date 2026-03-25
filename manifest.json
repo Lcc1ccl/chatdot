@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "ChatDot Navigator",
+  "name": "ChatDot",
   "version": "1.0.0",
   "description": "AI 对话快速导航侧边栏 — 在 ChatGPT 等 AI 对话页面中快速跳转到任意用户消息",
   "permissions": ["storage"],

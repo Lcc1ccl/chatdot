@@ -1,65 +1,77 @@
-# ChatDot Navigator
+# ChatDot
 
 <p align="center">
-  <img src="icons/icon128.png" width="80" alt="ChatDot Navigator">
+  <img src="icons/icon128.png" width="80" alt="ChatDot">
 </p>
 
 <p align="center">
-  <strong>AI 对话快速导航侧边栏</strong><br>
-  在 ChatGPT 等 AI 对话页面中快速跳转到任意用户消息
+  <strong>AI 对话导航侧边栏</strong><br>
+  在 ChatGPT 对话页面中快速定位和跳转到任意用户消息
 </p>
 
 <p align="center">
+  <img src="https://img.shields.io/badge/Version-1.0.0-5ca8c8" alt="Version 1.0.0">
   <img src="https://img.shields.io/badge/Manifest-V3-blue" alt="Manifest V3">
   <img src="https://img.shields.io/badge/License-MIT-green" alt="MIT License">
 </p>
 
 ---
 
-## ✨ 功能特性
+## 它解决什么问题
 
-- **⏫ 跳到顶部** — 一键回到对话开始
-- **⬆️ 上一条消息** — 跳转到上一条用户消息
-- **⬇️ 下一条消息** — 跳转到下一条用户消息  
-- **⏬ 跳到底部** — 一键回到对话末尾
-- **📊 计数器** — 实时显示当前位置 (x/n)
-- **🌙 暗色模式** — 自动适配 ChatGPT 暗色主题
-- **🔄 SPA 感知** — 切换对话自动重置
+当一个 ChatGPT 对话变长之后，想回头找某一轮提问需要反复滚动。ChatDot 在页面右侧注入一个浮动导航栏，让你可以逐条跳转、直接定位到任意一条消息。
 
-## 🖼️ 效果预览
+## 功能
 
-侧边栏默认以低透明度浮动在页面右侧，鼠标悬停时变为完全可见：
+### 导航
 
-```
-  ┌─────────────────────────┐    ┌──┐
-  │                         │    │⏫│
-  │     ChatGPT 对话页面      │    │⬆│
-  │                         │    │2/5│
-  │                         │    │⬇│
-  │                         │    │⏬│
-  └─────────────────────────┘    └──┘
-```
+- **跳到顶部 / 底部** — 一键到达对话首尾
+- **上一条 / 下一条** — 逐条跳转用户消息，跳转时目标消息会有高亮反馈
+- **位置计数器** — 实时显示当前位置 (x/n)
 
-## 📦 安装
+### 消息预览
 
-### 从源码安装（开发模式）
+鼠标悬停在上/下导航按钮上时，会在左侧弹出下一条目标消息的内容预览，无需实际跳转即可了解上下文。
+
+### 大纲面板
+
+点击大纲按钮可展开一个浮动面板，列出所有用户消息的摘要索引，支持：
+- 点击直达对应消息
+- 实时高亮当前可见位置
+- 钉住面板保持常驻，或点击空白区域关闭
+
+### 设置
+
+通过扩展弹窗（点击工具栏图标）进行配置：
+
+| 设置项 | 说明 |
+|--------|------|
+| 启用导航栏 | 整体开关 |
+| 悬浮预览 | 控制 hover 消息预览的显示 |
+| 消息大纲 | 控制大纲按钮和面板的显示 |
+| 滚动模式 | 平滑滚动 / 瞬间跳转 |
+| 语言 | 中文 / English / 日本語 / 한국어 |
+
+### 其他
+
+- **暗色模式** — 自动适配 ChatGPT 暗色主题
+- **SPA 感知** — 切换对话时自动重置导航状态
+- **低打扰设计** — 侧边栏默认低透明度，鼠标悬停时才完全显示；内容不可滚动时自动隐藏
+
+## 安装
+
+### 从源码加载（开发模式）
 
 1. 克隆仓库：
    ```bash
-   git clone https://github.com/YishenTu/chatdot.git
+   git clone https://github.com/Lcc1ccl/chatdot.git
    ```
-
 2. 打开 Chrome，访问 `chrome://extensions/`
-
 3. 开启右上角的 **开发者模式**
+4. 点击 **加载已解压的扩展程序**，选择 `chatdot` 目录
+5. 打开 [chatgpt.com](https://chatgpt.com) 即可使用
 
-4. 点击 **加载已解压的扩展程序**
-
-5. 选择克隆的 `chatdot` 目录
-
-6. 访问 [chatgpt.com](https://chatgpt.com) 即可看到导航侧边栏
-
-## 🔧 支持平台
+## 支持平台
 
 | 平台 | 状态 |
 |------|------|
@@ -68,28 +80,27 @@
 | Gemini | 🔜 计划中 |
 | DeepSeek | 🔜 计划中 |
 
-## 🏗️ 项目结构
+## 项目结构
 
 ```
 chatdot/
-├── manifest.json    # Chrome 扩展配置 (Manifest V3)
-├── content.js       # 内容脚本：DOM 检测 + UI 注入 + 导航逻辑
-├── content.css      # 导航侧边栏样式
-├── popup.html       # 弹出窗口 UI
-├── popup.js         # 弹出窗口逻辑
+├── manifest.json    # 扩展配置 (Manifest V3)
+├── content.js       # 内容脚本：DOM 检测 + 导航 UI + 大纲面板 + 消息预览
+├── content.css      # 侧边栏 + 大纲面板样式（含暗色模式）
+├── popup.html       # 设置面板 UI
+├── popup.js         # 设置逻辑 + i18n
 ├── icons/           # 扩展图标
-└── README.md
+└── LICENSE
 ```
 
-## 🎨 设计灵感
+## 设计说明
 
-本项目的导航侧边栏设计灵感来自 [Claudian](https://github.com/YishenTu/claudian) — 一个在 Obsidian 中嵌入 Claude Code 的插件。
+导航侧边栏的核心算法移植自 [Claudian](https://github.com/YishenTu/claudian)（一个在 Obsidian 中嵌入 Claude Code 的插件）的 `NavigationSidebar.ts`，包括：
 
-核心导航算法移植自 Claudian 的 `NavigationSidebar.ts`：
-- 通过用户消息的 DOM 位置进行精准定位
+- 基于 DOM offsetTop 的精准滚动定位
 - 平滑滚动 + 跳转高亮反馈
 - 内容可滚动时才显示的智能可见性控制
 
-## 📄 License
+## License
 
-[MIT License](LICENSE)
+[MIT](LICENSE)

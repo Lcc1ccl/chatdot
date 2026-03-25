@@ -3,285 +3,409 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ChatDot Navigator</title>
+  <title>ChatDot</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #f2f2f7;
+      /* Logo palette: white → ice blue → soft teal */
+      --bg: #f4f7fa;
       --card: #ffffff;
-      --text-primary: #1c1c1e;
-      --text-secondary: #8e8e93;
-      --text-tertiary: #aeaeb2;
-      --separator: rgba(60, 60, 67, 0.06);
-      --accent: #007aff;
-      --accent-light: rgba(0, 122, 255, 0.08);
-      --green: #34c759;
-      --red: #ff3b30;
-      --switch-bg: #e9e9eb;
-      --shadow: 0 0.5px 0 rgba(0, 0, 0, 0.04);
+      --card-border: rgba(180, 210, 230, 0.35);
+      --card-shadow: 0 2px 12px rgba(160, 195, 220, 0.12);
+      --text-main: #2c3e50;
+      --text-muted: #8a9bb0;
+      --accent: #7bbad4;
+      --accent-deep: #5ca8c8;
+      --accent-glow: rgba(123, 186, 212, 0.25);
+      --accent-light: rgba(123, 186, 212, 0.08);
+      --mint: #8ed4cc;
+      --ice: #c8dde8;
+      --switch-off: #d8e3ec;
+      --switch-on: linear-gradient(135deg, #a8d4e0 0%, #7ecbc5 100%);
+      --success: #6dc5a0;
+      --danger: #e07070;
+      --border-light: rgba(180, 210, 230, 0.25);
+      --radius: 12px;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      width: 340px;
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+      width: 320px;
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: var(--bg);
-      color: var(--text-primary);
-      font-size: 14px;
+      color: var(--text-main);
+      font-size: 13px;
       -webkit-font-smoothing: antialiased;
       user-select: none;
+      overflow-x: hidden;
     }
 
     /* ---- Header ---- */
     .header {
-      padding: 18px 20px 14px;
+      padding: 16px 18px 14px;
       display: flex;
       align-items: center;
       gap: 10px;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-light);
+      position: sticky;
+      top: 0;
+      z-index: 50;
     }
-    .header-logo {
-      width: 28px; height: 28px;
-      background: linear-gradient(135deg, #007aff, #5856d6);
-      border-radius: 7px;
-      display: flex; align-items: center; justify-content: center;
-      color: #fff; font-size: 14px; font-weight: 600;
+    .logo {
+      width: 30px; height: 30px;
+      border-radius: 8px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .logo img {
+      width: 100%; height: 100%; object-fit: cover;
     }
     .header-title {
-      font-size: 17px; font-weight: 600; color: var(--text-primary);
-      letter-spacing: -0.2px;
+      font-size: 16px; font-weight: 600; letter-spacing: -0.3px;
+      color: var(--text-main);
     }
     .header-right {
       margin-left: auto;
-      display: flex; align-items: center; gap: 4px;
+      display: flex; align-items: center;
     }
-    .header-btn {
-      width: 32px; height: 32px;
-      border: none; background: transparent;
-      color: var(--text-secondary);
-      cursor: pointer; border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.15s;
+
+    .dropdown-container {
       position: relative;
     }
-    .header-btn:hover { background: var(--separator); }
-    .header-btn.active { color: var(--accent); }
-    .header-btn svg { width: 20px; height: 20px; }
-    .version-tag {
-      font-size: 11px; color: var(--text-tertiary);
-      font-weight: 500; margin-left: 2px;
-    }
 
-    /* ---- Card Section ---- */
-    .card {
-      background: var(--card);
-      border-radius: 12px;
-      margin: 0 16px 10px;
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-
-    /* ---- Row ---- */
-    .row {
-      display: flex;
-      align-items: center;
-      padding: 12px 16px;
-      min-height: 44px;
-    }
-    .row + .row { border-top: 1px solid var(--separator); margin-left: 16px; padding-left: 0; }
-    .row-content { flex: 1; min-width: 0; }
-    .row-label {
-      font-size: 14px; color: var(--text-primary);
-      font-weight: 400;
-    }
-    .row-desc {
-      font-size: 12px; color: var(--text-secondary);
-      margin-top: 1px; line-height: 1.3;
-    }
-
-    /* ---- iOS Switch ---- */
-    .ios-switch {
-      position: relative; width: 51px; height: 31px;
-      flex-shrink: 0; margin-left: 12px;
-    }
-    .ios-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
-    .ios-track {
-      position: absolute; inset: 0;
-      background: var(--switch-bg);
-      border-radius: 15.5px;
-      transition: background 0.25s ease;
-      cursor: pointer;
-    }
-    .ios-track::after {
-      content: '';
-      position: absolute;
-      width: 27px; height: 27px;
-      left: 2px; top: 2px;
-      background: #fff;
-      border-radius: 50%;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.15), 0 1px 1px rgba(0,0,0,0.06);
-      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .ios-switch input:checked + .ios-track { background: var(--green); }
-    .ios-switch input:checked + .ios-track::after { transform: translateX(20px); }
-
-    /* ---- Segmented Control ---- */
-    .segmented-wrap { padding: 12px 16px; }
-    .segmented {
-      display: flex;
-      background: var(--switch-bg);
+    .icon-btn {
+      width: 32px; height: 32px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
       border-radius: 8px;
-      padding: 2px;
-    }
-    .seg-btn {
-      flex: 1; padding: 6px 0;
-      font-size: 13px; font-weight: 500;
-      background: transparent; border: none;
-      color: var(--text-secondary);
-      cursor: pointer; border-radius: 7px;
+      display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer;
       transition: all 0.2s;
     }
-    .seg-btn.active {
-      background: var(--card);
-      color: var(--text-primary);
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 0.5px 1px rgba(0,0,0,0.04);
+    .icon-btn:hover {
+      background: var(--accent-light);
+      color: var(--accent-deep);
+      border-color: var(--card-border);
     }
+    .icon-btn.active {
+      background: var(--accent-light);
+      color: var(--accent-deep);
+    }
+    .icon-btn svg { width: 18px; height: 18px; }
 
-    /* ---- Status Bar ---- */
-    .status {
-      margin: 6px 16px 16px;
-      padding: 10px;
-      border-radius: 10px;
-      text-align: center;
-      font-size: 13px; font-weight: 500;
-      transition: all 0.25s;
-    }
-    .status.active {
-      background: rgba(52, 199, 89, 0.08);
-      color: var(--green);
-    }
-    .status.inactive {
-      background: rgba(255, 59, 48, 0.06);
-      color: var(--red);
-    }
-
-    /* ---- Language Popup ---- */
+    /* ---- Language Dropdown ---- */
     .lang-popup {
       position: absolute;
-      right: 0; top: 38px;
+      top: 100%; right: 0;
+      margin-top: 6px;
       background: var(--card);
+      border: 1px solid var(--card-border);
       border-radius: 10px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.12), 0 0 0 0.5px rgba(0,0,0,0.04);
-      z-index: 100;
-      min-width: 120px;
       padding: 4px;
-      opacity: 0;
-      transform: scale(0.9) translateY(-4px);
-      transform-origin: top right;
-      pointer-events: none;
-      transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+      min-width: 128px;
+      display: flex; flex-direction: column; gap: 2px;
+      opacity: 0; pointer-events: none;
+      transform: translateY(-6px);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 8px 28px rgba(140, 180, 210, 0.18);
+      z-index: 100;
     }
     .lang-popup.show {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-      pointer-events: auto;
+      opacity: 1; pointer-events: auto; transform: translateY(0);
     }
     .lang-option {
-      display: flex; align-items: center;
+      display: flex; align-items: center; gap: 8px;
       padding: 8px 12px;
-      font-size: 13px; color: var(--text-primary);
-      border: none; background: transparent;
-      width: 100%; text-align: left;
-      cursor: pointer; border-radius: 7px;
-      transition: background 0.1s;
-      gap: 8px;
+      background: transparent; border: none;
+      color: var(--text-muted);
+      font-size: 12px; font-weight: 500; font-family: 'DM Sans', sans-serif;
+      border-radius: 7px; cursor: pointer;
+      transition: all 0.15s;
     }
-    .lang-option:hover { background: var(--accent-light); }
-    .lang-option.selected { color: var(--accent); font-weight: 500; }
-    .lang-check { width: 16px; color: var(--accent); font-size: 14px; }
+    .lang-option:hover { background: var(--accent-light); color: var(--text-main); }
+    .lang-option.selected { color: var(--accent-deep); background: var(--accent-light); font-weight: 600; }
+    .lang-check { width: 14px; display: inline-block; font-size: 13px; line-height: 1; color: var(--accent-deep); }
+
+    /* ---- Main Container ---- */
+    .container {
+      padding: 12px 14px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+
+    /* ---- Group Card ---- */
+    .group {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      display: flex; flex-direction: column;
+      box-shadow: var(--card-shadow);
+    }
+    .row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 16px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .row:hover { background: rgba(123, 186, 212, 0.03); }
+    .row:not(:last-child) {
+      border-bottom: 1px solid var(--border-light);
+    }
+    .row-info {
+      display: flex; flex-direction: column; gap: 3px;
+    }
+    .row-title {
+      font-size: 13px; font-weight: 500; color: var(--text-main);
+    }
+    .row-desc {
+      font-size: 11px; color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* ---- Pill Toggle ---- */
+    .toggle {
+      position: relative;
+      width: 40px; height: 22px;
+      background: var(--switch-off);
+      border-radius: 11px;
+      flex-shrink: 0; margin-left: 12px;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 18px; height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+    }
+    .toggle:has(input:checked) {
+      background: var(--switch-on);
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+    .toggle:has(input:checked)::after {
+      transform: translateX(18px);
+    }
+
+    /* ---- Segmented Control ---- */
+    .segment {
+      display: flex;
+      background: var(--switch-off);
+      padding: 3px;
+      border-radius: 9px;
+    }
+    .seg-btn {
+      flex: 1;
+      padding: 7px 12px;
+      font-size: 12px; font-weight: 500;
+      color: var(--text-muted);
+      background: transparent; border: none;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .seg-btn:hover:not(.active) { color: var(--text-main); }
+    .seg-btn.active {
+      background: var(--card);
+      color: var(--text-main);
+      box-shadow: 0 1px 4px rgba(140, 180, 210, 0.2);
+      font-weight: 600;
+    }
+
+    /* ---- Status Indicator ---- */
+    .status-bar {
+      margin: 4px 14px 0;
+      padding: 9px;
+      border-radius: 10px;
+      font-size: 11px; font-weight: 600;
+      text-align: center;
+      border: 1px solid transparent;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      transition: all 0.3s ease;
+    }
+    .status-bar::before {
+      content: ''; display: block; width: 6px; height: 6px;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+    .status-bar.active {
+      background: rgba(109, 197, 160, 0.1);
+      color: var(--success);
+      border-color: rgba(109, 197, 160, 0.2);
+    }
+    .status-bar.active::before {
+      background: var(--success);
+      box-shadow: 0 0 6px var(--success);
+    }
+    .status-bar.inactive {
+      background: rgba(224, 112, 112, 0.08);
+      color: var(--danger);
+      border-color: rgba(224, 112, 112, 0.15);
+    }
+    .status-bar.inactive::before {
+      background: var(--danger);
+      box-shadow: 0 0 6px var(--danger);
+    }
+
+    /* ---- Footer ---- */
+    .footer {
+      padding: 12px 14px 14px;
+      display: flex; flex-direction: column; gap: 10px;
+      border-top: 1px solid var(--border-light);
+      margin-top: 4px;
+    }
+    .footer-top {
+      display: flex; align-items: center; justify-content: space-between;
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+    .version {
+      font-weight: 500;
+    }
+    #version-num {
+      margin-left: 2px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500; color: var(--accent-deep);
+    }
+    .doc-link {
+      display: inline-flex; align-items: center; gap: 4px;
+      color: var(--text-muted); text-decoration: none;
+      transition: color 0.15s; font-weight: 500;
+      cursor: pointer;
+    }
+    .doc-link:hover { color: var(--accent-deep); }
+    .doc-link svg { width: 13px; height: 13px; }
+
+    .star-btn {
+      width: 100%;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 10px; border-radius: 10px;
+      background: linear-gradient(135deg, #a8d4e0 0%, #7ecbc5 100%);
+      color: #fff; text-decoration: none;
+      font-weight: 600; font-size: 13px;
+      transition: all 0.25s;
+      border: none;
+      box-shadow: 0 2px 10px rgba(126, 203, 197, 0.3);
+      font-family: 'DM Sans', sans-serif;
+    }
+    .star-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(126, 203, 197, 0.4);
+      filter: brightness(1.05);
+    }
+    .star-btn:active {
+      transform: translateY(0);
+    }
+    .star-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
   <div class="header">
-    <div class="header-logo">⚡</div>
-    <span class="header-title">ChatDot</span>
+    <div class="logo">
+       <img src="icons/logo.png" alt="ChatDot">
+    </div>
+    <div class="header-title">ChatDot</div>
     <div class="header-right">
-      <button class="header-btn" id="btn-lang" title="Language">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-        <!-- Language Popup -->
+      <div class="dropdown-container">
+        <button class="icon-btn" id="btn-lang" title="Language">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+        </button>
         <div class="lang-popup" id="lang-popup">
-          <button class="lang-option selected" data-lang="zh"><span class="lang-check">✓</span>简体中文</button>
-          <button class="lang-option" data-lang="en"><span class="lang-check"></span>English</button>
-          <button class="lang-option" data-lang="ja"><span class="lang-check"></span>日本語</button>
-          <button class="lang-option" data-lang="ko"><span class="lang-check"></span>한국어</button>
+          <button class="lang-option selected" data-lang="zh">
+            <span class="lang-check">✓</span> 简体中文
+          </button>
+          <button class="lang-option" data-lang="en">
+            <span class="lang-check"></span> English
+          </button>
+          <button class="lang-option" data-lang="ja">
+            <span class="lang-check"></span> 日本語
+          </button>
+          <button class="lang-option" data-lang="ko">
+            <span class="lang-check"></span> 한국어
+          </button>
         </div>
-      </button>
-      <span class="version-tag">v1.0</span>
-    </div>
-  </div>
-
-  <!-- 导航设置 -->
-  <div class="card">
-    <div class="row">
-      <div class="row-content">
-        <div class="row-label" data-i18n="enable_nav">启用导航栏</div>
-      </div>
-      <div class="ios-switch">
-        <input type="checkbox" id="toggle-enabled" checked>
-        <label class="ios-track" for="toggle-enabled"></label>
-      </div>
-    </div>
-    <div class="row">
-      <div class="row-content">
-        <div class="row-label" data-i18n="show_preview">悬浮预览</div>
-        <div class="row-desc" data-i18n="show_preview_desc">导航按钮悬停显示消息内容</div>
-      </div>
-      <div class="ios-switch">
-        <input type="checkbox" id="toggle-preview" checked>
-        <label class="ios-track" for="toggle-preview"></label>
-      </div>
-    </div>
-    <div class="row">
-      <div class="row-content">
-        <div class="row-label" data-i18n="show_outline">消息大纲</div>
-        <div class="row-desc" data-i18n="show_outline_desc">侧边栏显示对话索引</div>
-      </div>
-      <div class="ios-switch">
-        <input type="checkbox" id="toggle-outline" checked>
-        <label class="ios-track" for="toggle-outline"></label>
       </div>
     </div>
   </div>
 
-  <!-- 滚动模式 -->
-  <div class="card">
-    <div class="segmented-wrap">
-      <div class="row-label" data-i18n="scroll_mode" style="margin-bottom:8px;font-weight:500;">滚动模式</div>
-      <div class="segmented" id="scroll-mode">
-        <button class="seg-btn active" data-value="smooth" data-i18n="smooth">平滑</button>
-        <button class="seg-btn" data-value="instant" data-i18n="instant">瞬移</button>
+  <div class="container">
+    <div class="group">
+      <label class="row">
+        <div class="row-info">
+          <div class="row-title" data-i18n="enable_nav">启用导航栏</div>
+        </div>
+        <div class="toggle">
+          <input type="checkbox" id="toggle-enabled" checked>
+        </div>
+      </label>
+      <label class="row">
+        <div class="row-info">
+          <div class="row-title" data-i18n="show_preview">悬浮预览</div>
+          <div class="row-desc" data-i18n="show_preview_desc">导航按钮悬停显示消息内容</div>
+        </div>
+        <div class="toggle">
+          <input type="checkbox" id="toggle-preview" checked>
+        </div>
+      </label>
+      <label class="row">
+        <div class="row-info">
+          <div class="row-title" data-i18n="show_outline">消息大纲</div>
+          <div class="row-desc" data-i18n="show_outline_desc">侧边栏显示对话索引</div>
+        </div>
+        <div class="toggle">
+          <input type="checkbox" id="toggle-outline" checked>
+        </div>
+      </label>
+    </div>
+
+    <div class="group">
+      <div class="row" style="flex-direction: column; align-items: stretch; gap: 10px; cursor: default;">
+        <div class="row-info">
+          <div class="row-title" data-i18n="scroll_mode">滚动模式</div>
+        </div>
+        <div class="segment" id="scroll-mode">
+          <button class="seg-btn active" data-value="smooth" data-i18n="smooth">平滑</button>
+          <button class="seg-btn" data-value="instant" data-i18n="instant">瞬移</button>
+        </div>
       </div>
     </div>
+
   </div>
 
-  <!-- 云同步 -->
-  <div class="card">
-    <div class="row">
-      <div class="row-content">
-        <div class="row-label" data-i18n="sync_settings">云同步设置</div>
-        <div class="row-desc" data-i18n="sync_settings_desc">跨设备同步偏好配置</div>
-      </div>
-      <div class="ios-switch">
-        <input type="checkbox" id="toggle-sync">
-        <label class="ios-track" for="toggle-sync"></label>
-      </div>
-    </div>
-  </div>
-
-  <!-- 状态指示 -->
-  <div id="status" class="status active">
+  <div id="status" class="status-bar active">
     <span data-i18n="status_active">导航已启用</span>
+  </div>
+
+  <div class="footer">
+    <div class="footer-top">
+      <div class="version">
+        <span data-i18n="version">版本</span> <span id="version-num">1.0.0</span>
+      </div>
+      <a href="https://github.com/Lcc1ccl/chatdot" target="_blank" class="doc-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+        <span data-i18n="official_doc">官方文档</span>
+      </a>
+    </div>
+    <a href="https://github.com/Lcc1ccl/chatdot" target="_blank" class="star-btn">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.418 22 12c0-5.523-4.477-10-10-10z"></path></svg>
+      <span data-i18n="star_project">为项目点亮 ⭐</span>
+    </a>
   </div>
 
   <script src="popup.js"></script>

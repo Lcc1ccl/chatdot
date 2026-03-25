@@ -1,5 +1,5 @@
 /**
- * ChatDot Navigator — Content Script
+ * ChatDot — Content Script
  * 移植自 Claudian NavigationSidebar 设计
  *
  * 核心功能：
@@ -30,8 +30,8 @@
   };
 
   function loadSettings(callback) {
-    if (chrome?.storage?.sync) {
-      chrome.storage.sync.get(SETTINGS, (data) => {
+    if (chrome?.storage?.local) {
+      chrome.storage.local.get(SETTINGS, (data) => {
         Object.assign(SETTINGS, data);
         if (callback) callback();
       });
@@ -157,6 +157,7 @@
     chevronDown: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>',
     chevronsDown: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 13 12 18 17 13"/><polyline points="7 6 12 11 17 6"/></svg>',
     list: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>',
+    pin: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66z"></path><line x1="9" y1="9" x2="2" y2="2"></line></svg>',
   };
 
   // ============================================
@@ -173,11 +174,26 @@
       this.outlineList = null;
       this.outlineToggleBtn = null;
       this.outlineOpen = false;
+      this.isPinned = false;
       this.scrollContainer = null;
       this.scrollHandler = null;
       this.observer = null;
       this.retryCount = 0;
       this.maxRetries = 30;
+    }
+
+    /**
+     * 获取元素相对于滚动容器的精确偏移量
+     * 通过 offsetTop 链向上累加到 scrollContainer 为止，避免 getBoundingClientRect 的时序偏差
+     */
+    getOffsetTop(el) {
+      let top = 0;
+      let current = el;
+      while (current && current !== this.scrollContainer) {
+        top += current.offsetTop;
+        current = current.offsetParent;
+      }
+      return top;
     }
 
     init() {
@@ -247,6 +263,10 @@
           e.preventDefault();
           e.stopPropagation();
           action();
+          // 未钉住时，点击导航按钮也关闭大纲
+          if (this.outlineOpen && !this.isPinned) {
+            this.toggleOutline(false);
+          }
         });
 
         if (preview) {
@@ -305,13 +325,28 @@
       title.className = 'chatdot-outline-title';
       title.textContent = '大纲';
 
+      const actions = document.createElement('div');
+      actions.className = 'chatdot-outline-actions';
+
+      const pinBtn = document.createElement('button');
+      pinBtn.className = 'chatdot-outline-pin';
+      pinBtn.innerHTML = ICONS.pin;
+      pinBtn.title = '钉住大纲';
+      pinBtn.addEventListener('click', () => {
+        this.isPinned = !this.isPinned;
+        pinBtn.classList.toggle('active', this.isPinned);
+      });
+
       const closeBtn = document.createElement('button');
       closeBtn.className = 'chatdot-outline-close';
       closeBtn.innerHTML = '×';
       closeBtn.addEventListener('click', () => this.toggleOutline(false));
 
+      actions.appendChild(pinBtn);
+      actions.appendChild(closeBtn);
+
       header.appendChild(title);
-      header.appendChild(closeBtn);
+      header.appendChild(actions);
       panel.appendChild(header);
 
       const list = document.createElement('div');
@@ -332,6 +367,11 @@
       this.outlineToggleBtn.classList.toggle('active', this.outlineOpen);
       if (this.outlineOpen) {
         this.refreshOutline();
+      } else {
+        // 关闭时重置钉住状态，下次打开需要重新钉住
+        this.isPinned = false;
+        const pinEl = this.outlinePanel.querySelector('.chatdot-outline-pin');
+        if (pinEl) pinEl.classList.remove('active');
       }
     }
 
@@ -350,10 +390,9 @@
 
       // 找当前可见索引
       const scrollTop = this.scrollContainer.scrollTop;
-      const containerRect = this.scrollContainer.getBoundingClientRect();
       let activeIdx = 0;
       for (let i = 0; i < messages.length; i++) {
-        const msgTop = messages[i].getBoundingClientRect().top - containerRect.top + scrollTop;
+        const msgTop = this.getOffsetTop(messages[i]);
         if (msgTop <= scrollTop + 80) activeIdx = i;
       }
 
@@ -374,8 +413,8 @@
         item.appendChild(text);
 
         item.addEventListener('click', () => {
-          const msgTop = msg.getBoundingClientRect().top - containerRect.top + this.scrollContainer.scrollTop;
-          this.scrollContainer.scrollTo({ top: msgTop - 10, behavior: SETTINGS.scrollMode });
+          const msgTop = this.getOffsetTop(msg);
+          this.scrollContainer.scrollTo({ top: msgTop - 20, behavior: SETTINGS.scrollMode });
           this.highlightMessage(msg);
           // 更新 active 状态
           this.outlineList.querySelectorAll('.chatdot-outline-item').forEach(el =>
@@ -394,19 +433,18 @@
       if (messages.length === 0) { previewEl.innerHTML = ''; return; }
 
       const scrollTop = this.scrollContainer.scrollTop;
-      const containerRect = this.scrollContainer.getBoundingClientRect();
       const threshold = 30;
       let target = null;
       const dirLabel = direction === 'prev' ? '⬆ 上一条' : '⬇ 下一条';
 
       if (direction === 'prev') {
         for (let i = messages.length - 1; i >= 0; i--) {
-          const msgTop = messages[i].getBoundingClientRect().top - containerRect.top + scrollTop;
+          const msgTop = this.getOffsetTop(messages[i]);
           if (msgTop < scrollTop - threshold) { target = messages[i]; break; }
         }
       } else {
         for (let i = 0; i < messages.length; i++) {
-          const msgTop = messages[i].getBoundingClientRect().top - containerRect.top + scrollTop;
+          const msgTop = this.getOffsetTop(messages[i]);
           if (msgTop > scrollTop + threshold) { target = messages[i]; break; }
         }
       }
@@ -435,6 +473,18 @@
         if (this.outlineOpen) this.refreshOutline();
       };
       this.scrollContainer.addEventListener('scroll', this.scrollHandler, { passive: true });
+
+      // ---- 任意空白处（外部）点击关闭大纲 ----
+      this.docClickHandler = (e) => {
+        if (!this.outlineOpen) return;
+        if (this.isPinned) return;
+        if (this.outlineToggleBtn && this.outlineToggleBtn.contains(e.target)) return;
+        
+        if (this.outlinePanel && !this.outlinePanel.contains(e.target)) {
+          this.toggleOutline(false);
+        }
+      };
+      document.addEventListener('click', this.docClickHandler);
     }
 
     updateVisibility() {
@@ -451,10 +501,9 @@
       if (total === 0) { this.counterEl.textContent = ''; return; }
 
       const scrollTop = this.scrollContainer.scrollTop;
-      const containerRect = this.scrollContainer.getBoundingClientRect();
       let current = 0;
       for (let i = 0; i < messages.length; i++) {
-        const msgTop = messages[i].getBoundingClientRect().top - containerRect.top + scrollTop;
+        const msgTop = this.getOffsetTop(messages[i]);
         if (msgTop <= scrollTop + 60) current = i + 1;
       }
       this.counterEl.textContent = current > 0 ? `${current}/${total}` : `${total}`;
@@ -474,15 +523,14 @@
       const messages = findUserMessages();
       if (messages.length === 0) return;
       const scrollTop = this.scrollContainer.scrollTop;
-      const containerRect = this.scrollContainer.getBoundingClientRect();
       const threshold = 30;
       const behavior = SETTINGS.scrollMode;
 
       if (direction === 'prev') {
         for (let i = messages.length - 1; i >= 0; i--) {
-          const msgTop = messages[i].getBoundingClientRect().top - containerRect.top + scrollTop;
+          const msgTop = this.getOffsetTop(messages[i]);
           if (msgTop < scrollTop - threshold) {
-            this.scrollContainer.scrollTo({ top: msgTop - 10, behavior });
+            this.scrollContainer.scrollTo({ top: msgTop - 20, behavior });
             this.highlightMessage(messages[i]);
             return;
           }
@@ -490,9 +538,9 @@
         this.scrollToTop();
       } else {
         for (let i = 0; i < messages.length; i++) {
-          const msgTop = messages[i].getBoundingClientRect().top - containerRect.top + scrollTop;
+          const msgTop = this.getOffsetTop(messages[i]);
           if (msgTop > scrollTop + threshold) {
-            this.scrollContainer.scrollTo({ top: msgTop - 10, behavior });
+            this.scrollContainer.scrollTo({ top: msgTop - 20, behavior });
             this.highlightMessage(messages[i]);
             return;
           }
@@ -562,6 +610,10 @@
       if (this.scrollHandler && this.scrollContainer) {
         this.scrollContainer.removeEventListener('scroll', this.scrollHandler);
       }
+      if (this.docClickHandler) {
+        document.removeEventListener('click', this.docClickHandler);
+        this.docClickHandler = null;
+      }
       if (this.observer) { this.observer.disconnect(); this.observer = null; }
       if (this.container) { this.container.remove(); this.container = null; }
       if (this.outlinePanel) { this.outlinePanel.remove(); this.outlinePanel = null; }
@@ -571,6 +623,7 @@
       this.outlineList = null;
       this.outlineToggleBtn = null;
       this.outlineOpen = false;
+      this.isPinned = false;
       this.scrollContainer = null;
     }
   }

@@ -1,6 +1,6 @@
 /* ========================================
-   ChatDot Navigator — 对话跳转侧边栏
-   移植自 Claudian NavigationSidebar 设计
+   ChatDot — 对话跳转侧边栏
+   色调风格：冰蓝极简，与 Logo 统一
    ======================================== */
 
 /* ---- 侧边栏容器 ---- */
@@ -33,13 +33,13 @@
   height: 36px;
   border-radius: 50%;
   background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  color: #8e8ea0;
+  border: 1px solid rgba(180, 210, 230, 0.35);
+  color: #8a9bb0;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
+  box-shadow: 0 2px 8px rgba(160, 195, 220, 0.15);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
   -webkit-user-select: none;
@@ -48,10 +48,10 @@
 }
 
 .chatdot-nav-btn:hover {
-  background: #f7f7f8;
-  color: #2d2d30;
+  background: #f0f6fa;
+  color: #5ca8c8;
   transform: scale(1.12);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
+  box-shadow: 0 4px 16px rgba(140, 190, 215, 0.22);
 }
 
 .chatdot-nav-btn:active {
@@ -74,11 +74,11 @@
   margin-top: 6px;
 }
 
-/* ---- 计数器指示器（可选） ---- */
+/* ---- 计数器指示器 ---- */
 .chatdot-nav-counter {
   font-size: 10px;
   font-weight: 600;
-  color: #8e8ea0;
+  color: #8a9bb0;
   text-align: center;
   line-height: 1;
   padding: 2px 0;
@@ -89,18 +89,18 @@
 /* ---- 暗色模式：通过 prefers-color-scheme ---- */
 @media (prefers-color-scheme: dark) {
   .chatdot-nav-btn {
-    background: #2f2f2f;
-    border-color: rgba(255, 255, 255, 0.08);
-    color: #8e8ea0;
+    background: #2a3340;
+    border-color: rgba(160, 210, 230, 0.12);
+    color: #8a9bb0;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
   .chatdot-nav-btn:hover {
-    background: #3a3a3a;
-    color: #ececf1;
+    background: #334050;
+    color: #8ed4cc;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
   }
   .chatdot-nav-counter {
-    color: #6e6e80;
+    color: #6e7e90;
   }
 }
 
@@ -108,31 +108,31 @@
 html.dark .chatdot-nav-btn,
 html[data-theme="dark"] .chatdot-nav-btn,
 .dark .chatdot-nav-btn {
-  background: #2f2f2f;
-  border-color: rgba(255, 255, 255, 0.08);
-  color: #8e8ea0;
+  background: #2a3340;
+  border-color: rgba(160, 210, 230, 0.12);
+  color: #8a9bb0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 html.dark .chatdot-nav-btn:hover,
 html[data-theme="dark"] .chatdot-nav-btn:hover,
 .dark .chatdot-nav-btn:hover {
-  background: #3a3a3a;
-  color: #ececf1;
+  background: #334050;
+  color: #8ed4cc;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
 html.dark .chatdot-nav-counter,
 html[data-theme="dark"] .chatdot-nav-counter,
 .dark .chatdot-nav-counter {
-  color: #6e6e80;
+  color: #6e7e90;
 }
 
 /* ---- 跳转目标高亮动画 ---- */
 @keyframes chatdot-pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
-  50%  { box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.12); }
-  100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+  0%   { box-shadow: 0 0 0 0 rgba(123, 186, 212, 0.4); }
+  50%  { box-shadow: 0 0 0 6px rgba(123, 186, 212, 0.12); }
+  100% { box-shadow: 0 0 0 0 rgba(123, 186, 212, 0); }
 }
 
 .chatdot-highlight {
@@ -142,7 +142,7 @@ html[data-theme="dark"] .chatdot-nav-counter,
 
 /* ---- 可访问性 ---- */
 .chatdot-nav-btn:focus-visible {
-  outline: 2px solid #6366f1;
+  outline: 2px solid #7bbad4;
   outline-offset: 2px;
 }
 
@@ -163,13 +163,13 @@ html[data-theme="dark"] .chatdot-nav-counter,
   min-width: 200px;
   padding: 8px 12px;
   background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(180, 210, 230, 0.35);
   border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 20px rgba(140, 190, 215, 0.15);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 12px;
   line-height: 1.5;
-  color: #2d2d30;
+  color: #2c3e50;
   opacity: 0;
   pointer-events: none;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -178,6 +178,7 @@ html[data-theme="dark"] .chatdot-nav-counter,
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 4;
+  line-clamp: 4;
   -webkit-box-orient: vertical;
 }
 
@@ -191,8 +192,8 @@ html[data-theme="dark"] .chatdot-nav-counter,
   width: 10px;
   height: 10px;
   background: #ffffff;
-  border-right: 1px solid rgba(0, 0, 0, 0.08);
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  border-right: 1px solid rgba(180, 210, 230, 0.35);
+  border-top: 1px solid rgba(180, 210, 230, 0.35);
 }
 
 .chatdot-nav-btn-wrapper:hover .chatdot-msg-preview {
@@ -210,7 +211,7 @@ html[data-theme="dark"] .chatdot-nav-counter,
 .chatdot-preview-label {
   font-size: 10px;
   font-weight: 600;
-  color: #8e8ea0;
+  color: #8a9bb0;
   margin-bottom: 4px;
   display: block;
 }
@@ -218,6 +219,7 @@ html[data-theme="dark"] .chatdot-nav-counter,
 .chatdot-preview-text {
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -225,35 +227,35 @@ html[data-theme="dark"] .chatdot-nav-counter,
 /* 暗色模式 tooltip */
 @media (prefers-color-scheme: dark) {
   .chatdot-msg-preview {
-    background: #2f2f2f;
-    border-color: rgba(255, 255, 255, 0.1);
-    color: #e0e0e0;
+    background: #2a3340;
+    border-color: rgba(160, 210, 230, 0.12);
+    color: #d0dce6;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   }
   .chatdot-msg-preview::after {
-    background: #2f2f2f;
-    border-color: rgba(255, 255, 255, 0.1);
+    background: #2a3340;
+    border-color: rgba(160, 210, 230, 0.12);
   }
-  .chatdot-preview-label { color: #6e6e80; }
+  .chatdot-preview-label { color: #6e7e90; }
 }
 
 html.dark .chatdot-msg-preview,
 html[data-theme="dark"] .chatdot-msg-preview,
 .dark .chatdot-msg-preview {
-  background: #2f2f2f;
-  border-color: rgba(255, 255, 255, 0.1);
-  color: #e0e0e0;
+  background: #2a3340;
+  border-color: rgba(160, 210, 230, 0.12);
+  color: #d0dce6;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 html.dark .chatdot-msg-preview::after,
 html[data-theme="dark"] .chatdot-msg-preview::after,
 .dark .chatdot-msg-preview::after {
-  background: #2f2f2f;
-  border-color: rgba(255, 255, 255, 0.1);
+  background: #2a3340;
+  border-color: rgba(160, 210, 230, 0.12);
 }
 html.dark .chatdot-preview-label,
 html[data-theme="dark"] .chatdot-preview-label,
-.dark .chatdot-preview-label { color: #6e6e80; }
+.dark .chatdot-preview-label { color: #6e7e90; }
 
 /* ============================================
    大纲面板 (Outline Panel)
@@ -261,9 +263,9 @@ html[data-theme="dark"] .chatdot-preview-label,
 
 /* 大纲按钮 active 状态 */
 .chatdot-nav-btn-outline.active {
-  background: #6366f1 !important;
+  background: linear-gradient(135deg, #a8d4e0 0%, #7ecbc5 100%) !important;
   color: #fff !important;
-  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.4) !important;
+  box-shadow: 0 2px 10px rgba(126, 203, 197, 0.4) !important;
 }
 
 .chatdot-nav-btn-outline {
@@ -279,9 +281,9 @@ html[data-theme="dark"] .chatdot-preview-label,
   width: 260px;
   max-height: 50vh;
   background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(180, 210, 230, 0.35);
   border-radius: 14px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 32px rgba(140, 190, 215, 0.15);
   z-index: 9999;
   display: flex;
   flex-direction: column;
@@ -304,35 +306,55 @@ html[data-theme="dark"] .chatdot-preview-label,
   align-items: center;
   justify-content: space-between;
   padding: 12px 14px 10px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid rgba(180, 210, 230, 0.25);
   flex-shrink: 0;
 }
 
 .chatdot-outline-title {
   font-size: 13px;
   font-weight: 600;
-  color: #2d2d30;
+  color: #2c3e50;
 }
 
-.chatdot-outline-close {
+.chatdot-outline-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chatdot-outline-close,
+.chatdot-outline-pin {
   width: 22px;
   height: 22px;
   border: none;
   background: transparent;
-  color: #8e8ea0;
-  font-size: 18px;
-  line-height: 1;
-  cursor: pointer;
-  border-radius: 4px;
+  color: #8a9bb0;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  border-radius: 4px;
   transition: all 0.15s;
 }
 
-.chatdot-outline-close:hover {
-  background: rgba(0, 0, 0, 0.06);
-  color: #2d2d30;
+.chatdot-outline-close {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.chatdot-outline-pin.active {
+  color: #5ca8c8;
+  background: rgba(92, 168, 200, 0.1);
+}
+
+.chatdot-outline-close:hover,
+.chatdot-outline-pin:hover {
+  background: rgba(123, 186, 212, 0.1);
+  color: #2c3e50;
+}
+
+.chatdot-outline-pin.active:hover {
+  background: rgba(92, 168, 200, 0.15);
 }
 
 /* 列表容器 */
@@ -349,7 +371,7 @@ html[data-theme="dark"] .chatdot-preview-label,
   background: transparent;
 }
 .chatdot-outline-list::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.12);
+  background: rgba(160, 195, 220, 0.3);
   border-radius: 4px;
 }
 
@@ -364,21 +386,21 @@ html[data-theme="dark"] .chatdot-preview-label,
   transition: all 0.15s;
   font-size: 12px;
   line-height: 1.45;
-  color: #555;
+  color: #6a7d90;
 }
 
 .chatdot-outline-item:hover {
-  background: rgba(99, 102, 241, 0.06);
-  color: #2d2d30;
+  background: rgba(123, 186, 212, 0.08);
+  color: #2c3e50;
 }
 
 .chatdot-outline-item.active {
-  background: rgba(99, 102, 241, 0.10);
-  color: #2d2d30;
+  background: rgba(123, 186, 212, 0.12);
+  color: #2c3e50;
 }
 
 .chatdot-outline-item.active .chatdot-outline-num {
-  background: #6366f1;
+  background: linear-gradient(135deg, #a8d4e0, #7ecbc5);
   color: #fff;
 }
 
@@ -386,8 +408,8 @@ html[data-theme="dark"] .chatdot-preview-label,
   min-width: 20px;
   height: 20px;
   border-radius: 6px;
-  background: #e8e8f0;
-  color: #6e6e80;
+  background: #e0ecf2;
+  color: #6a7d90;
   font-size: 10px;
   font-weight: 700;
   display: flex;
@@ -402,6 +424,7 @@ html[data-theme="dark"] .chatdot-preview-label,
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   word-break: break-word;
 }
@@ -409,63 +432,80 @@ html[data-theme="dark"] .chatdot-preview-label,
 .chatdot-outline-empty {
   text-align: center;
   padding: 20px;
-  color: #8e8ea0;
+  color: #8a9bb0;
   font-size: 12px;
 }
 
 /* ---- 大纲面板暗色模式 ---- */
 @media (prefers-color-scheme: dark) {
   .chatdot-outline-panel {
-    background: #2a2a2a;
-    border-color: rgba(255, 255, 255, 0.08);
+    background: #2a3340;
+    border-color: rgba(160, 210, 230, 0.12);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   }
-  .chatdot-outline-header { border-color: rgba(255, 255, 255, 0.06); }
-  .chatdot-outline-title { color: #e0e0e0; }
-  .chatdot-outline-close { color: #6e6e80; }
-  .chatdot-outline-close:hover { background: rgba(255, 255, 255, 0.08); color: #e0e0e0; }
-  .chatdot-outline-item { color: #9a9aaa; }
-  .chatdot-outline-item:hover { background: rgba(99, 102, 241, 0.1); color: #e0e0e0; }
-  .chatdot-outline-item.active { background: rgba(99, 102, 241, 0.15); color: #e0e0e0; }
-  .chatdot-outline-num { background: #3a3a4a; color: #8e8ea0; }
-  .chatdot-outline-item.active .chatdot-outline-num { background: #6366f1; color: #fff; }
-  .chatdot-outline-list::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); }
+  .chatdot-outline-header { border-color: rgba(160, 210, 230, 0.1); }
+  .chatdot-outline-title { color: #d0dce6; }
+  .chatdot-outline-close, .chatdot-outline-pin { color: #6e7e90; }
+  .chatdot-outline-close:hover, .chatdot-outline-pin:hover { background: rgba(123, 186, 212, 0.12); color: #d0dce6; }
+  .chatdot-outline-pin.active { color: #8ed4cc; background: rgba(126, 203, 197, 0.15); }
+  .chatdot-outline-pin.active:hover { background: rgba(126, 203, 197, 0.25); }
+  .chatdot-outline-item { color: #8a9bb0; }
+  .chatdot-outline-item:hover { background: rgba(123, 186, 212, 0.1); color: #d0dce6; }
+  .chatdot-outline-item.active { background: rgba(123, 186, 212, 0.15); color: #d0dce6; }
+  .chatdot-outline-num { background: #344050; color: #8a9bb0; }
+  .chatdot-outline-item.active .chatdot-outline-num { background: linear-gradient(135deg, #a8d4e0, #7ecbc5); color: #fff; }
+  .chatdot-outline-list::-webkit-scrollbar-thumb { background: rgba(160, 210, 230, 0.15); }
 }
 
 html.dark .chatdot-outline-panel,
 html[data-theme="dark"] .chatdot-outline-panel,
 .dark .chatdot-outline-panel {
-  background: #2a2a2a;
-  border-color: rgba(255, 255, 255, 0.08);
+  background: #2a3340;
+  border-color: rgba(160, 210, 230, 0.12);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 html.dark .chatdot-outline-header,
 html[data-theme="dark"] .chatdot-outline-header,
-.dark .chatdot-outline-header { border-color: rgba(255, 255, 255, 0.06); }
+.dark .chatdot-outline-header { border-color: rgba(160, 210, 230, 0.1); }
 html.dark .chatdot-outline-title,
 html[data-theme="dark"] .chatdot-outline-title,
-.dark .chatdot-outline-title { color: #e0e0e0; }
+.dark .chatdot-outline-title { color: #d0dce6; }
 html.dark .chatdot-outline-close,
 html[data-theme="dark"] .chatdot-outline-close,
-.dark .chatdot-outline-close { color: #6e6e80; }
+.dark .chatdot-outline-close,
+html.dark .chatdot-outline-pin,
+html[data-theme="dark"] .chatdot-outline-pin,
+.dark .chatdot-outline-pin { color: #6e7e90; }
+
 html.dark .chatdot-outline-close:hover,
 html[data-theme="dark"] .chatdot-outline-close:hover,
-.dark .chatdot-outline-close:hover { background: rgba(255, 255, 255, 0.08); color: #e0e0e0; }
+.dark .chatdot-outline-close:hover,
+html.dark .chatdot-outline-pin:hover,
+html[data-theme="dark"] .chatdot-outline-pin:hover,
+.dark .chatdot-outline-pin:hover { background: rgba(123, 186, 212, 0.12); color: #d0dce6; }
+
+html.dark .chatdot-outline-pin.active,
+html[data-theme="dark"] .chatdot-outline-pin.active,
+.dark .chatdot-outline-pin.active { color: #8ed4cc; background: rgba(126, 203, 197, 0.15); }
+
+html.dark .chatdot-outline-pin.active:hover,
+html[data-theme="dark"] .chatdot-outline-pin.active:hover,
+.dark .chatdot-outline-pin.active:hover { background: rgba(126, 203, 197, 0.25); }
 html.dark .chatdot-outline-item,
 html[data-theme="dark"] .chatdot-outline-item,
-.dark .chatdot-outline-item { color: #9a9aaa; }
+.dark .chatdot-outline-item { color: #8a9bb0; }
 html.dark .chatdot-outline-item:hover,
 html[data-theme="dark"] .chatdot-outline-item:hover,
-.dark .chatdot-outline-item:hover { background: rgba(99, 102, 241, 0.1); color: #e0e0e0; }
+.dark .chatdot-outline-item:hover { background: rgba(123, 186, 212, 0.1); color: #d0dce6; }
 html.dark .chatdot-outline-item.active,
 html[data-theme="dark"] .chatdot-outline-item.active,
-.dark .chatdot-outline-item.active { background: rgba(99, 102, 241, 0.15); color: #e0e0e0; }
+.dark .chatdot-outline-item.active { background: rgba(123, 186, 212, 0.15); color: #d0dce6; }
 html.dark .chatdot-outline-num,
 html[data-theme="dark"] .chatdot-outline-num,
-.dark .chatdot-outline-num { background: #3a3a4a; color: #8e8ea0; }
+.dark .chatdot-outline-num { background: #344050; color: #8a9bb0; }
 html.dark .chatdot-outline-item.active .chatdot-outline-num,
 html[data-theme="dark"] .chatdot-outline-item.active .chatdot-outline-num,
-.dark .chatdot-outline-item.active .chatdot-outline-num { background: #6366f1; color: #fff; }
+.dark .chatdot-outline-item.active .chatdot-outline-num { background: linear-gradient(135deg, #a8d4e0, #7ecbc5); color: #fff; }
 
 /* ---- 小屏适配 ---- */
 @media (max-width: 768px) {
@@ -489,4 +529,3 @@ html[data-theme="dark"] .chatdot-outline-item.active .chatdot-outline-num,
     max-height: 40vh;
   }
 }
-
