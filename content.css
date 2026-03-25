@@ -1,0 +1,162 @@
+/* ========================================
+   ChatDot Navigator — 对话跳转侧边栏
+   移植自 Claudian NavigationSidebar 设计
+   ======================================== */
+
+/* ---- 侧边栏容器 ---- */
+.chatdot-nav-sidebar {
+  position: fixed;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 10000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.chatdot-nav-sidebar.visible {
+  opacity: 0.18;
+  pointer-events: auto;
+}
+
+.chatdot-nav-sidebar.visible:hover {
+  opacity: 1;
+}
+
+/* ---- 导航按钮 ---- */
+.chatdot-nav-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #8e8ea0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  -webkit-user-select: none;
+  padding: 0;
+  outline: none;
+}
+
+.chatdot-nav-btn:hover {
+  background: #f7f7f8;
+  color: #2d2d30;
+  transform: scale(1.12);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
+}
+
+.chatdot-nav-btn:active {
+  transform: scale(0.92);
+  transition-duration: 0.08s;
+}
+
+.chatdot-nav-btn svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* 顶/底按钮与中间按钮的间距 */
+.chatdot-nav-btn-top {
+  margin-bottom: 6px;
+}
+
+.chatdot-nav-btn-bottom {
+  margin-top: 6px;
+}
+
+/* ---- 计数器指示器（可选） ---- */
+.chatdot-nav-counter {
+  font-size: 10px;
+  font-weight: 600;
+  color: #8e8ea0;
+  text-align: center;
+  line-height: 1;
+  padding: 2px 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  pointer-events: none;
+}
+
+/* ---- 暗色模式：通过 prefers-color-scheme ---- */
+@media (prefers-color-scheme: dark) {
+  .chatdot-nav-btn {
+    background: #2f2f2f;
+    border-color: rgba(255, 255, 255, 0.08);
+    color: #8e8ea0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  .chatdot-nav-btn:hover {
+    background: #3a3a3a;
+    color: #ececf1;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  }
+  .chatdot-nav-counter {
+    color: #6e6e80;
+  }
+}
+
+/* ---- 暗色模式：通过 ChatGPT HTML 类名检测 ---- */
+html.dark .chatdot-nav-btn,
+html[data-theme="dark"] .chatdot-nav-btn,
+.dark .chatdot-nav-btn {
+  background: #2f2f2f;
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #8e8ea0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+html.dark .chatdot-nav-btn:hover,
+html[data-theme="dark"] .chatdot-nav-btn:hover,
+.dark .chatdot-nav-btn:hover {
+  background: #3a3a3a;
+  color: #ececf1;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+html.dark .chatdot-nav-counter,
+html[data-theme="dark"] .chatdot-nav-counter,
+.dark .chatdot-nav-counter {
+  color: #6e6e80;
+}
+
+/* ---- 跳转目标高亮动画 ---- */
+@keyframes chatdot-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+  50%  { box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.12); }
+  100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+}
+
+.chatdot-highlight {
+  animation: chatdot-pulse 0.6s ease-out;
+  border-radius: 8px;
+}
+
+/* ---- 可访问性 ---- */
+.chatdot-nav-btn:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+}
+
+/* ---- 小屏隐藏 ---- */
+@media (max-width: 768px) {
+  .chatdot-nav-sidebar {
+    right: 8px;
+  }
+  .chatdot-nav-btn {
+    width: 32px;
+    height: 32px;
+  }
+  .chatdot-nav-btn svg {
+    width: 15px;
+    height: 15px;
+  }
+}
