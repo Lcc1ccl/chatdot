@@ -6,163 +6,280 @@
   <title>ChatDot Navigator</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    
+
     body {
-      width: 300px;
+      width: 320px;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: #1a1a2e;
       color: #e0e0e0;
       padding: 20px;
+      font-size: 13px;
     }
 
+    /* ---- Header ---- */
     .header {
       display: flex;
       align-items: center;
       gap: 10px;
       margin-bottom: 16px;
     }
-
     .header .logo {
-      width: 32px;
-      height: 32px;
+      width: 32px; height: 32px;
       background: linear-gradient(135deg, #6366f1, #8b5cf6);
       border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .header h1 { font-size: 16px; font-weight: 600; color: #fff; }
+    .header .version {
+      font-size: 11px; color: #6e6e80; margin-left: auto;
+    }
+
+    /* ---- Header Icons ---- */
+    .header-icons {
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: 16px;
-    }
-
-    .header h1 {
-      font-size: 16px;
-      font-weight: 600;
-      color: #fff;
-    }
-
-    .header .version {
-      font-size: 11px;
-      color: #6e6e80;
+      gap: 6px;
       margin-left: auto;
     }
+    .header-icon-btn {
+      width: 28px; height: 28px;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 6px;
+      color: #8e8ea0;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+    }
+    .header-icon-btn:hover {
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+    }
+    .header-icon-btn.active {
+      background: rgba(99,102,241,0.15);
+      border-color: rgba(99,102,241,0.3);
+      color: #818cf8;
+    }
+    .header-icon-btn svg { width: 16px; height: 16px; }
 
-    .divider {
-      height: 1px;
-      background: rgba(255, 255, 255, 0.08);
-      margin: 12px 0;
+    /* ---- Divider ---- */
+    .divider { height: 1px; background: rgba(255,255,255,0.06); margin: 14px 0; }
+
+    /* ---- Section ---- */
+    .section {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #8e8ea0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
     }
 
-    .toggle-row {
+    /* ---- Toggle Row ---- */
+    .setting-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 8px 0;
+      padding: 6px 0;
     }
+    .setting-row + .setting-row { border-top: 1px solid rgba(255,255,255,0.04); }
+    .setting-label { color: #c0c0d0; font-size: 13px; }
+    .setting-desc { color: #6e6e80; font-size: 11px; margin-top: 2px; }
 
-    .toggle-row label {
-      font-size: 13px;
-      color: #b0b0c0;
-    }
-
-    /* 开关 */
-    .switch {
-      position: relative;
-      width: 40px;
-      height: 22px;
-    }
-
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
+    /* ---- Switch Toggle ---- */
+    .switch { position: relative; width: 38px; height: 20px; flex-shrink: 0; }
+    .switch input { opacity: 0; width: 0; height: 0; }
     .slider {
-      position: absolute;
-      cursor: pointer;
-      inset: 0;
-      background: #3a3a4a;
-      border-radius: 22px;
-      transition: 0.3s;
+      position: absolute; cursor: pointer; inset: 0;
+      background: #3a3a4a; border-radius: 20px; transition: 0.25s;
     }
-
     .slider::before {
-      content: '';
-      position: absolute;
-      width: 16px;
-      height: 16px;
-      left: 3px;
-      bottom: 3px;
-      background: #fff;
-      border-radius: 50%;
-      transition: 0.3s;
+      content: ''; position: absolute;
+      width: 14px; height: 14px; left: 3px; bottom: 3px;
+      background: #fff; border-radius: 50%; transition: 0.25s;
+    }
+    input:checked + .slider { background: #6366f1; }
+    input:checked + .slider::before { transform: translateX(18px); }
+
+    /* ---- Segmented Control (Scroll Mode) ---- */
+    .segmented {
+      display: flex;
+      background: #2a2a3a;
+      border-radius: 8px;
+      padding: 3px;
+      gap: 2px;
+    }
+    .seg-btn {
+      flex: 1; padding: 5px 10px;
+      font-size: 12px; font-weight: 500;
+      background: transparent; border: none;
+      color: #8e8ea0; cursor: pointer;
+      border-radius: 6px; transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .seg-btn:hover { color: #c0c0d0; }
+    .seg-btn.active {
+      background: #6366f1; color: #fff;
+      box-shadow: 0 2px 6px rgba(99,102,241,0.3);
     }
 
-    input:checked + .slider {
-      background: #6366f1;
+    /* ---- Language Select ---- */
+    .lang-select {
+      background: #2a2a3a;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 6px;
+      color: #e0e0e0;
+      font-size: 12px;
+      padding: 4px 8px;
+      cursor: pointer;
+      outline: none;
     }
+    .lang-select:focus { border-color: #6366f1; }
 
-    input:checked + .slider::before {
-      transform: translateX(18px);
-    }
-
+    /* ---- Status ---- */
     .status {
-      margin-top: 16px;
-      padding: 10px 12px;
-      background: rgba(99, 102, 241, 0.1);
-      border: 1px solid rgba(99, 102, 241, 0.2);
+      margin-top: 6px;
+      padding: 8px 12px;
+      background: rgba(99,102,241,0.08);
+      border: 1px solid rgba(99,102,241,0.15);
       border-radius: 8px;
       font-size: 12px;
       color: #a0a0ff;
       text-align: center;
     }
-
     .status.inactive {
-      background: rgba(255, 100, 100, 0.08);
-      border-color: rgba(255, 100, 100, 0.15);
+      background: rgba(255,100,100,0.06);
+      border-color: rgba(255,100,100,0.12);
       color: #ff9090;
     }
 
+    /* ---- Footer ---- */
     .footer {
-      margin-top: 16px;
-      text-align: center;
-      font-size: 11px;
-      color: #4a4a5a;
+      margin-top: 14px; text-align: center;
+      font-size: 11px; color: #4a4a5a;
     }
+    .footer a { color: #6366f1; text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
 
-    .footer a {
-      color: #6366f1;
-      text-decoration: none;
+    .github-btn {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      margin-top: 8px; padding: 6px 12px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      color: #8e8ea0; text-decoration: none;
+      font-size: 12px; transition: all 0.15s;
     }
-    .footer a:hover {
-      text-decoration: underline;
+    .github-btn:hover {
+      background: rgba(255,255,255,0.08);
+      color: #e0e0e0;
     }
+    .github-btn svg { width: 14px; height: 14px; }
   </style>
 </head>
 <body>
+  <!-- Header -->
   <div class="header">
     <div class="logo">⚡</div>
-    <h1>ChatDot Navigator</h1>
-    <span class="version">v1.0.0</span>
-  </div>
-
-  <div class="divider"></div>
-
-  <div class="toggle-row">
-    <label for="toggle-enabled">启用导航栏</label>
-    <div class="switch">
-      <input type="checkbox" id="toggle-enabled" checked>
-      <span class="slider"></span>
+    <h1>ChatDot Nav</h1>
+    <div class="header-icons">
+      <!-- Dark Mode indicator -->
+      <button class="header-icon-btn" id="btn-dark" title="Deep/Light Mode">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <!-- Language -->
+      <button class="header-icon-btn" id="btn-lang" title="Language">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      </button>
+      <span class="version">v1.0.0</span>
     </div>
   </div>
 
-  <div id="status" class="status">
-    ✅ 导航侧边栏已激活
+  <div class="divider"></div>
+
+  <!-- 导航设置 -->
+  <div class="section">
+    <div class="section-title" data-i18n="nav_settings">导航设置</div>
+
+    <div class="setting-row">
+      <div>
+        <div class="setting-label" data-i18n="enable_nav">启用导航栏</div>
+      </div>
+      <div class="switch">
+        <input type="checkbox" id="toggle-enabled" checked>
+        <span class="slider"></span>
+      </div>
+    </div>
+
+    <div class="setting-row">
+      <div>
+        <div class="setting-label" data-i18n="show_preview">悬浮预览消息</div>
+        <div class="setting-desc" data-i18n="show_preview_desc">Hover 导航按钮时显示消息预览</div>
+      </div>
+      <div class="switch">
+        <input type="checkbox" id="toggle-preview" checked>
+        <span class="slider"></span>
+      </div>
+    </div>
   </div>
+
+  <!-- 滚动模式 -->
+  <div class="section">
+    <div class="section-title" data-i18n="scroll_mode">滚动模式</div>
+    <div class="segmented" id="scroll-mode">
+      <button class="seg-btn active" data-value="smooth" data-i18n="smooth">流动</button>
+      <button class="seg-btn" data-value="instant" data-i18n="instant">跳跃</button>
+    </div>
+  </div>
+
+  <!-- 云同步 -->
+  <div class="section">
+    <div class="section-title" data-i18n="cloud_sync">云同步</div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label" data-i18n="sync_settings">同步设置到 Chrome</div>
+        <div class="setting-desc" data-i18n="sync_settings_desc">在不同设备间同步偏好</div>
+      </div>
+      <div class="switch">
+        <input type="checkbox" id="toggle-sync" checked>
+        <span class="slider"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 语言选择浮层 -->
+  <div class="section" id="lang-section" style="display:none;">
+    <div class="section-title" data-i18n="language">语言 / Language</div>
+    <div class="setting-row">
+      <select class="lang-select" id="lang-select">
+        <option value="zh">简体中文</option>
+        <option value="en">English</option>
+        <option value="ja">日本語</option>
+        <option value="ko">한국어</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Status -->
+  <div id="status" class="status">✅ <span data-i18n="status_active">导航侧边栏已激活</span></div>
 
   <div class="divider"></div>
 
+  <!-- Footer -->
   <div class="footer">
-    灵感来自 <a href="https://github.com/YishenTu/claudian" target="_blank">Claudian</a>
+    <span data-i18n="inspired_by">灵感来自</span> <a href="https://github.com/YishenTu/claudian" target="_blank">Claudian</a>
+    <a class="github-btn" href="https://github.com/Lcc1ccl/chatdot" target="_blank">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+      <span data-i18n="star_project">为项目点亮 ⭐</span>
+    </a>
   </div>
 
   <script src="popup.js"></script>
