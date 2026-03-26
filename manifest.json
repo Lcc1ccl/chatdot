@@ -10,7 +10,7 @@
         "https://chatgpt.com/*",
         "https://chat.openai.com/*"
       ],
-      "js": ["content.js"],
+      "js": ["navigation-logic.js", "content.js"],
       "css": ["content.css"],
       "run_at": "document_idle"
     }
