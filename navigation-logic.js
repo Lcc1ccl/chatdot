@@ -13,6 +13,7 @@
 
   const DEFAULT_SAFE_OFFSET = 88;
   const DEFAULT_BOTTOM_EPSILON = 24;
+  const DEFAULT_ACTIVE_EPSILON = 8;
 
   function clamp(value, min, max) {
     return Math.min(Math.max(value, min), max);
@@ -24,6 +25,7 @@
     }
 
     const safeOffset = options.safeOffset ?? DEFAULT_SAFE_OFFSET;
+    const activeEpsilon = Math.max(0, options.activeEpsilon ?? DEFAULT_ACTIVE_EPSILON);
     const bottomEpsilon = options.bottomEpsilon ?? DEFAULT_BOTTOM_EPSILON;
     const maxScrollTop = Math.max(0, options.maxScrollTop ?? 0);
     const scrollTop = Math.max(0, options.scrollTop ?? 0);
@@ -33,13 +35,26 @@
     }
 
     const threshold = scrollTop + safeOffset;
-    let current = 0;
+    let current = -1;
 
     for (let i = 0; i < anchorTops.length; i++) {
       if (anchorTops[i] <= threshold) {
         current = i;
       } else {
         break;
+      }
+    }
+
+    if (current === -1) {
+      return 0;
+    }
+
+    // Programmatic smooth scroll can land a few pixels short of the safe line.
+    const nextTop = anchorTops[current + 1];
+    if (typeof nextTop === 'number') {
+      const nextDistance = nextTop - threshold;
+      if (nextDistance > 0 && nextDistance <= activeEpsilon) {
+        return current + 1;
       }
     }
 
@@ -121,6 +136,7 @@
   return {
     DEFAULT_SAFE_OFFSET,
     DEFAULT_BOTTOM_EPSILON,
+    DEFAULT_ACTIVE_EPSILON,
     clamp,
     pickBestBindingCandidate,
     resolveActiveIndex,

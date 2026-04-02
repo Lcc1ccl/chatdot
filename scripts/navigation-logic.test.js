@@ -29,6 +29,17 @@ run('resolveActiveIndex returns last item at page bottom', () => {
   assert.equal(index, 2);
 });
 
+run('resolveActiveIndex tolerates minor scroll rounding after landing on a target message', () => {
+  const index = resolveActiveIndex([120, 560, 1040], {
+    scrollTop: 471,
+    maxScrollTop: 1600,
+    safeOffset: 88,
+    bottomEpsilon: 24,
+  });
+
+  assert.equal(index, 1);
+});
+
 run('resolveAdjacentIndex moves to previous item from the last active message', () => {
   const index = resolveAdjacentIndex(2, 'prev', 3);
   assert.equal(index, 1);
