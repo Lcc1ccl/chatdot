@@ -6,6 +6,7 @@
   'use strict';
 
   const popupLogic = globalThis.ChatDotPopupLogic || {};
+  const i18nApi = globalThis.ChatDotI18n || {};
   const DEFAULTS = popupLogic.DEFAULTS || {
     enabled: true,
     scrollMode: 'smooth',
@@ -14,7 +15,6 @@
     showOutline: true,
     themeMode: 'system',
   };
-  const getTranslations = popupLogic.getTranslations || ((lang) => (popupLogic.I18N || {})[lang] || (popupLogic.I18N || {}).zh || {});
   const getStoreReviewUrl = popupLogic.getStoreReviewUrl || (() => 'https://chromewebstore.google.com/');
   const getChangelogEntries = popupLogic.getChangelogEntries || (() => []);
   const GITHUB_REPO_URL = popupLogic.GITHUB_REPO_URL || 'https://github.com/Lcc1ccl/chatdot';
@@ -41,6 +41,7 @@
   const changelogTitleEl = $('changelog-title');
 
   let currentLang = 'zh';
+  let currentTranslations = {};
 
   // 自动获取版本号
   const manifestData = chrome.runtime.getManifest();
@@ -52,11 +53,11 @@
   // ============================================
   // 加载设置
   // ============================================
-  chrome.storage.local.get(DEFAULTS, (data) => {
-    applySettings(data);
+  chrome.storage.local.get(DEFAULTS, async (data) => {
+    await applySettings(data);
   });
 
-  function applySettings(data) {
+  async function applySettings(data) {
     toggleEnabled.checked = data.enabled;
     togglePreview.checked = data.showPreview;
     toggleOutline.checked = data.showOutline;
@@ -70,11 +71,38 @@
       btn.classList.toggle('active', btn.dataset.value === (data.themeMode || 'system'));
     });
 
-    updateLangUI(currentLang);
-    applyI18n(currentLang);
+    await setActiveLanguage(currentLang);
     updateStatus(data.enabled);
     syncExternalLinks();
     renderChangelog();
+  }
+
+  async function resolveTranslations(lang) {
+    if (typeof i18nApi.loadLocaleMessages === 'function') {
+      try {
+        return await i18nApi.loadLocaleMessages(lang);
+      } catch (error) {
+        console.warn('[ChatDot Popup]', 'failed to load locale catalog', error);
+      }
+    }
+
+    if (typeof popupLogic.getTranslations === 'function') {
+      return popupLogic.getTranslations(lang);
+    }
+
+    return {};
+  }
+
+  async function setActiveLanguage(lang) {
+    currentLang = lang || 'zh';
+    currentTranslations = await resolveTranslations(currentLang);
+    document.documentElement.lang = currentLang === 'zh' ? 'zh-CN' : currentLang;
+    updateLangUI(currentLang);
+    applyI18n();
+  }
+
+  function translate(key) {
+    return currentTranslations[key] || i18nApi.getBrowserMessage?.(key) || '';
   }
 
   // ============================================
@@ -152,15 +180,13 @@
   });
 
   // 点击语言选项
-  langPopup.addEventListener('click', (e) => {
+  langPopup.addEventListener('click', async (e) => {
     e.stopPropagation();
     const opt = e.target.closest('.lang-option');
     if (!opt) return;
     const lang = opt.dataset.lang;
-    currentLang = lang;
     save({ language: lang });
-    updateLangUI(lang);
-    applyI18n(lang);
+    await setActiveLanguage(lang);
     renderChangelog();
     langPopup.classList.remove('show');
     btnLang.classList.remove('active');
@@ -199,37 +225,40 @@
     });
   }
 
-  function applyI18n(lang) {
-    const t = getTranslations(lang);
+  function applyI18n() {
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.dataset.i18n;
-      if (t[key]) el.textContent = t[key];
+      const value = translate(key);
+      if (value) el.textContent = value;
     });
     document.querySelectorAll('[data-i18n-title]').forEach(el => {
       const key = el.dataset.i18nTitle;
-      if (t[key]) el.title = t[key];
+      const value = translate(key);
+      if (value) el.title = value;
     });
     document.querySelectorAll('[data-i18n-aria-label]').forEach(el => {
       const key = el.dataset.i18nAriaLabel;
-      if (t[key]) el.setAttribute('aria-label', t[key]);
+      const value = translate(key);
+      if (value) el.setAttribute('aria-label', value);
     });
     scrollModeEl.querySelectorAll('.seg-btn').forEach(btn => {
       const key = btn.dataset.i18n;
-      if (t[key]) btn.textContent = t[key];
+      const value = translate(key);
+      if (value) btn.textContent = value;
     });
     themeModeEl.querySelectorAll('.seg-btn').forEach(btn => {
       const key = btn.dataset.i18n;
-      if (t[key]) btn.textContent = t[key];
+      const value = translate(key);
+      if (value) btn.textContent = value;
     });
   }
 
   function updateStatus(enabled) {
-    const t = getTranslations(currentLang);
     if (enabled) {
-      statusEl.innerHTML = `<span data-i18n="status_active">${t.status_active}</span>`;
+      statusEl.innerHTML = `<span data-i18n="status_active">${translate('status_active')}</span>`;
       statusEl.className = 'status-bar active';
     } else {
-      statusEl.innerHTML = `<span data-i18n="status_inactive">${t.status_inactive}</span>`;
+      statusEl.innerHTML = `<span data-i18n="status_inactive">${translate('status_inactive')}</span>`;
       statusEl.className = 'status-bar inactive';
     }
   }
@@ -240,16 +269,15 @@
   }
 
   function renderChangelog() {
-    const t = getTranslations(currentLang);
     const entries = getChangelogEntries(currentLang);
 
-    changelogTitleEl.textContent = t.changelog_title;
+    changelogTitleEl.textContent = translate('changelog_title');
     changelogListEl.innerHTML = '';
 
     if (!entries.length) {
       const empty = document.createElement('div');
       empty.className = 'changelog-empty';
-      empty.textContent = t.changelog_empty;
+      empty.textContent = translate('changelog_empty');
       changelogListEl.appendChild(empty);
       return;
     }

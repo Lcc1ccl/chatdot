@@ -23,14 +23,12 @@ run('manifest injects only the currently supported AI chat hosts', () => {
   ]);
 });
 
-run('manifest title and description stay concise for store listing', () => {
-  assert.equal(manifest.name, 'ChatDot - AI 对话导航');
-  assert.equal(manifest.description, '为 ChatGPT、Gemini、Claude 和豆包添加右侧导航栏与消息大纲，快速定位历史提问并预览上下文。');
-  assert.ok(manifest.name.length <= 45);
-  assert.ok(manifest.description.length <= 132);
-  assert.equal(manifest.description.includes('更多平台逐步接入中'), false);
+run('manifest uses Chrome i18n placeholders and declares a default locale', () => {
+  assert.equal(manifest.default_locale, 'zh_CN');
+  assert.equal(manifest.name, '__MSG_extName__');
+  assert.equal(manifest.description, '__MSG_extDescription__');
 });
 
-run('manifest description no longer advertises DeepSeek support', () => {
-  assert.equal(manifest.description.includes('DeepSeek'), false);
+run('manifest keeps localized metadata in action as well', () => {
+  assert.equal(manifest.action.default_title, '__MSG_extActionTitle__');
 });

@@ -1,0 +1,119 @@
+{
+  "extName": {
+    "message": "ChatDot - AI Chat Navigator"
+  },
+  "extDescription": {
+    "message": "Add a right-side navigator and message outline to ChatGPT, Gemini, Claude, and Doubao for faster jumps and context previews."
+  },
+  "extActionTitle": {
+    "message": "Open ChatDot settings"
+  },
+  "enable_nav": {
+    "message": "Enable Navigation"
+  },
+  "show_preview": {
+    "message": "Hover Preview"
+  },
+  "show_preview_desc": {
+    "message": "Show message preview on hover"
+  },
+  "show_outline": {
+    "message": "Message Outline"
+  },
+  "show_outline_desc": {
+    "message": "Show conversation index"
+  },
+  "display_mode": {
+    "message": "Display Mode"
+  },
+  "display_mode_desc": {
+    "message": "Control sidebar color theme"
+  },
+  "theme_light": {
+    "message": "Light"
+  },
+  "theme_dark": {
+    "message": "Dark"
+  },
+  "theme_system": {
+    "message": "System"
+  },
+  "scroll_mode": {
+    "message": "Scroll Mode"
+  },
+  "smooth": {
+    "message": "Smooth"
+  },
+  "instant": {
+    "message": "Instant"
+  },
+  "status_active": {
+    "message": "Navigation enabled"
+  },
+  "status_inactive": {
+    "message": "Navigation disabled"
+  },
+  "version": {
+    "message": "Version"
+  },
+  "review_support": {
+    "message": "Leave a Review"
+  },
+  "review_support_desc": {
+    "message": "Open the Chrome Web Store review page to support ChatDot"
+  },
+  "github_repo": {
+    "message": "GitHub repository"
+  },
+  "changelog_title": {
+    "message": "Changelog"
+  },
+  "changelog_empty": {
+    "message": "No updates yet."
+  },
+  "changelog_open": {
+    "message": "View changelog"
+  },
+  "changelog_close": {
+    "message": "Close"
+  },
+  "language_button": {
+    "message": "Switch language"
+  },
+  "outline_title": {
+    "message": "Outline"
+  },
+  "outline_pin": {
+    "message": "Pin outline"
+  },
+  "outline_close": {
+    "message": "Close outline"
+  },
+  "jump_top": {
+    "message": "Jump to top"
+  },
+  "jump_prev_user": {
+    "message": "Previous user message"
+  },
+  "jump_next_user": {
+    "message": "Next user message"
+  },
+  "jump_bottom": {
+    "message": "Jump to bottom"
+  },
+  "outline_empty": {
+    "message": "No user messages yet"
+  },
+  "preview_prev": {
+    "message": "↑ Previous"
+  },
+  "preview_next": {
+    "message": "↓ Next"
+  },
+  "preview_at_top": {
+    "message": "Already at the top"
+  },
+  "preview_at_bottom": {
+    "message": "Already at the bottom"
+  }
+}

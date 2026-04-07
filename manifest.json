@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "ChatDot - AI 对话导航",
+  "default_locale": "zh_CN",
+  "name": "__MSG_extName__",
   "version": "1.1.0",
-  "description": "为 ChatGPT、Gemini、Claude 和豆包添加右侧导航栏与消息大纲，快速定位历史提问并预览上下文。",
+  "description": "__MSG_extDescription__",
   "permissions": ["storage"],
   "content_scripts": [
     {
@@ -13,13 +14,14 @@
         "https://claude.ai/*",
         "https://www.doubao.com/*"
       ],
-      "js": ["navigation-logic.js", "content.js"],
+      "js": ["navigation-logic.js", "localization.js", "content.js"],
       "css": ["content.css"],
       "run_at": "document_idle"
     }
   ],
   "action": {
     "default_popup": "popup.html",
+    "default_title": "__MSG_extActionTitle__",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",

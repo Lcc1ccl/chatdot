@@ -10,6 +10,7 @@
 
   const LOG_PREFIX = '[ChatDot Nav]';
   const NAV_LOGIC = globalThis.ChatDotNavLogic;
+  const I18N = globalThis.ChatDotI18n;
 
   if (!NAV_LOGIC) {
     console.warn(LOG_PREFIX, 'navigation logic is missing');
@@ -33,8 +34,10 @@
     scrollMode: 'smooth',
     showPreview: true,
     showOutline: true,
+    language: 'zh',
     themeMode: 'system',
   };
+  let messages = {};
 
   const PLATFORM_SELECTORS = {
     chatgpt: {
@@ -102,6 +105,50 @@
   const CURRENT_SELECTORS = PLATFORM_SELECTORS[currentPlatform] || PLATFORM_SELECTORS.chatgpt;
   const scrollStrategy = resolveScrollStrategy(currentPlatform);
 
+  function t(key, fallback = '') {
+    if (messages[key]) {
+      return messages[key];
+    }
+
+    const browserMessage = I18N?.getBrowserMessage?.(key);
+    if (browserMessage) {
+      return browserMessage;
+    }
+
+    return fallback || key;
+  }
+
+  async function syncMessages(lang) {
+    if (!I18N?.loadLocaleMessages) {
+      messages = {};
+      return;
+    }
+
+    try {
+      messages = await I18N.loadLocaleMessages(lang);
+    } catch (error) {
+      console.warn(LOG_PREFIX, 'failed to load locale catalog', error);
+      messages = await I18N.loadLocaleMessages('zh').catch(() => ({}));
+    }
+  }
+
+  function applyControlLabel(control, label) {
+    if (!control) {
+      return;
+    }
+
+    if (typeof I18N?.applyLocalizedControlLabel === 'function') {
+      I18N.applyLocalizedControlLabel(control, label);
+      return;
+    }
+
+    control.title = label;
+    control.setAttribute('aria-label', label);
+    if (control.dataset && Object.prototype.hasOwnProperty.call(control.dataset, 'originalTitle')) {
+      control.dataset.originalTitle = label;
+    }
+  }
+
   function applyThemeMode(mode) {
     if (!mode || mode === 'system') {
       document.documentElement.removeAttribute('data-chatdot-theme');
@@ -121,15 +168,18 @@
 
   function loadSettings(callback) {
     if (chrome?.storage?.local) {
-      chrome.storage.local.get(SETTINGS, (data) => {
+      chrome.storage.local.get(SETTINGS, async (data) => {
         Object.assign(SETTINGS, data);
         applyThemeMode(SETTINGS.themeMode);
+        await syncMessages(SETTINGS.language);
         if (callback) callback();
       });
       return;
     }
 
-    if (callback) callback();
+    syncMessages(SETTINGS.language).finally(() => {
+      if (callback) callback();
+    });
   }
 
   function queryAll(selectors, root = document) {
@@ -335,6 +385,10 @@
       this.outlineOpen = false;
       this.outlineItems = [];
       this.isPinned = false;
+      this.navButtons = {};
+      this.outlineTitleEl = null;
+      this.outlinePinBtn = null;
+      this.outlineCloseBtn = null;
 
       this.scrollContainer = null;
       this.scrollHandler = null;
@@ -396,8 +450,7 @@
       const outlineBtn = document.createElement('button');
       outlineBtn.className = 'chatdot-nav-btn chatdot-nav-btn-outline';
       outlineBtn.innerHTML = ICONS.list;
-      outlineBtn.title = '大纲';
-      outlineBtn.setAttribute('aria-label', '大纲');
+      applyControlLabel(outlineBtn, t('outline_title', '大纲'));
       outlineBtn.addEventListener('click', (event) => {
         event.preventDefault();
         event.stopPropagation();
@@ -410,18 +463,20 @@
       this.container.appendChild(outlineBtn);
 
       const buttons = [
-        { cls: 'chatdot-nav-btn-top', icon: ICONS.chevronsUp, label: '跳到顶部', action: () => this.scrollToTop(), preview: false },
-        { cls: 'chatdot-nav-btn-prev', icon: ICONS.chevronUp, label: '上一条用户消息', action: () => this.scrollToMessage('prev'), preview: 'prev' },
-        { cls: 'chatdot-nav-btn-next', icon: ICONS.chevronDown, label: '下一条用户消息', action: () => this.scrollToMessage('next'), preview: 'next' },
-        { cls: 'chatdot-nav-btn-bottom', icon: ICONS.chevronsDown, label: '跳到底部', action: () => this.scrollToBottom(), preview: false },
+        { cls: 'chatdot-nav-btn-top', icon: ICONS.chevronsUp, labelKey: 'jump_top', fallback: '跳到顶部', action: () => this.scrollToTop(), preview: false },
+        { cls: 'chatdot-nav-btn-prev', icon: ICONS.chevronUp, labelKey: 'jump_prev_user', fallback: '上一条用户消息', action: () => this.scrollToMessage('prev'), preview: 'prev' },
+        { cls: 'chatdot-nav-btn-next', icon: ICONS.chevronDown, labelKey: 'jump_next_user', fallback: '下一条用户消息', action: () => this.scrollToMessage('next'), preview: 'next' },
+        { cls: 'chatdot-nav-btn-bottom', icon: ICONS.chevronsDown, labelKey: 'jump_bottom', fallback: '跳到底部', action: () => this.scrollToBottom(), preview: false },
       ];
 
-      buttons.forEach(({ cls, icon, label, action, preview }, index) => {
+      buttons.forEach(({ cls, icon, labelKey, fallback, action, preview }, index) => {
         const button = document.createElement('button');
         button.className = `chatdot-nav-btn ${cls}`;
         button.innerHTML = icon;
-        button.title = label;
-        button.setAttribute('aria-label', label);
+        const label = t(labelKey, fallback);
+        button.dataset.i18nKey = labelKey;
+        button.dataset.i18nFallback = fallback;
+        applyControlLabel(button, label);
         button.addEventListener('click', (event) => {
           event.preventDefault();
           event.stopPropagation();
@@ -466,6 +521,8 @@
           this.container.appendChild(button);
         }
 
+        this.navButtons[labelKey] = button;
+
         if (index === 1) {
           this.counterEl = document.createElement('div');
           this.counterEl.className = 'chatdot-nav-counter';
@@ -487,7 +544,8 @@
 
       const title = document.createElement('span');
       title.className = 'chatdot-outline-title';
-      title.textContent = '大纲';
+      title.textContent = t('outline_title', '大纲');
+      this.outlineTitleEl = title;
 
       const actions = document.createElement('div');
       actions.className = 'chatdot-outline-actions';
@@ -495,18 +553,19 @@
       const pinBtn = document.createElement('button');
       pinBtn.className = 'chatdot-outline-pin';
       pinBtn.innerHTML = ICONS.pin;
-      pinBtn.title = '固定大纲';
-      pinBtn.setAttribute('aria-label', '固定大纲');
+      applyControlLabel(pinBtn, t('outline_pin', '固定大纲'));
       pinBtn.addEventListener('click', () => {
         this.isPinned = !this.isPinned;
         pinBtn.classList.toggle('active', this.isPinned);
       });
+      this.outlinePinBtn = pinBtn;
 
       const closeBtn = document.createElement('button');
       closeBtn.className = 'chatdot-outline-close';
       closeBtn.innerHTML = '&times;';
-      closeBtn.setAttribute('aria-label', '关闭大纲');
+      applyControlLabel(closeBtn, t('outline_close', '关闭大纲'));
       closeBtn.addEventListener('click', () => this.toggleOutline(false));
+      this.outlineCloseBtn = closeBtn;
 
       actions.appendChild(pinBtn);
       actions.appendChild(closeBtn);
@@ -527,6 +586,46 @@
       }
 
       document.body.appendChild(panel);
+    }
+
+    applyLocalizedText() {
+      if (this.outlineToggleBtn) {
+        applyControlLabel(this.outlineToggleBtn, t('outline_title', '大纲'));
+      }
+
+      Object.entries(this.navButtons).forEach(([key, button]) => {
+        if (!button) {
+          return;
+        }
+
+        const label = t(key, button.dataset.i18nFallback || '');
+        applyControlLabel(button, label);
+      });
+
+      if (this.outlineTitleEl) {
+        this.outlineTitleEl.textContent = t('outline_title', '大纲');
+      }
+
+      if (this.outlinePinBtn) {
+        applyControlLabel(this.outlinePinBtn, t('outline_pin', '固定大纲'));
+      }
+
+      if (this.outlineCloseBtn) {
+        applyControlLabel(this.outlineCloseBtn, t('outline_close', '关闭大纲'));
+      }
+
+      if (SETTINGS.showPreview) {
+        if (this.prevPreview && this.prevPreview.innerHTML.trim()) {
+          this.updatePreview('prev', this.prevPreview);
+        }
+        if (this.nextPreview && this.nextPreview.innerHTML.trim()) {
+          this.updatePreview('next', this.nextPreview);
+        }
+      }
+
+      if (this.outlineOpen) {
+        this.renderOutline();
+      }
     }
 
     bindGlobalEvents() {
@@ -1056,7 +1155,7 @@
       if (this.snapshot.length === 0) {
         const empty = document.createElement('div');
         empty.className = 'chatdot-outline-empty';
-        empty.textContent = '暂无用户消息';
+        empty.textContent = t('outline_empty', '暂无用户消息');
         this.outlineList.appendChild(empty);
         return;
       }
@@ -1117,7 +1216,7 @@
         : this.activeIndex === lastIndex;
 
       if (atBoundary) {
-        previewEl.innerHTML = `<span class="chatdot-preview-label">${direction === 'prev' ? '↑ 上一条' : '↓ 下一条'}</span><span class="chatdot-preview-text" style="color:#6e6e80">${direction === 'prev' ? '已在最顶部' : '已在最底部'}</span>`;
+        previewEl.innerHTML = `<span class="chatdot-preview-label">${direction === 'prev' ? t('preview_prev', '↑ 上一条') : t('preview_next', '↓ 下一条')}</span><span class="chatdot-preview-text" style="color:#6e6e80">${direction === 'prev' ? t('preview_at_top', '已在最顶部') : t('preview_at_bottom', '已在最底部')}</span>`;
         return;
       }
 
@@ -1129,7 +1228,7 @@
         return;
       }
 
-      const label = direction === 'prev' ? '↑ 上一条' : '↓ 下一条';
+      const label = direction === 'prev' ? t('preview_prev', '↑ 上一条') : t('preview_next', '↓ 下一条');
       previewEl.innerHTML = `<span class="chatdot-preview-label">${label}</span><span class="chatdot-preview-text">${this.escapeHtml(target.previewText)}</span>`;
     }
 
@@ -1326,47 +1425,57 @@
         return;
       }
 
-      if (msg.enabled !== undefined) SETTINGS.enabled = msg.enabled;
-      if (msg.scrollMode !== undefined) SETTINGS.scrollMode = msg.scrollMode;
-      if (msg.showPreview !== undefined) SETTINGS.showPreview = msg.showPreview;
-      if (msg.showOutline !== undefined) SETTINGS.showOutline = msg.showOutline;
-      if (msg.themeMode !== undefined) {
-        SETTINGS.themeMode = msg.themeMode;
-        applyThemeMode(msg.themeMode);
-      }
-
-      const nav = window.__chatdotNav;
-      if (!nav) {
-        return;
-      }
-
-      if (msg.enabled !== undefined) {
-        if (SETTINGS.enabled) {
-          nav.init();
-        } else {
-          nav.destroy();
+      Promise.resolve().then(async () => {
+        if (msg.enabled !== undefined) SETTINGS.enabled = msg.enabled;
+        if (msg.scrollMode !== undefined) SETTINGS.scrollMode = msg.scrollMode;
+        if (msg.showPreview !== undefined) SETTINGS.showPreview = msg.showPreview;
+        if (msg.showOutline !== undefined) SETTINGS.showOutline = msg.showOutline;
+        if (msg.language !== undefined) {
+          SETTINGS.language = msg.language;
+          await syncMessages(msg.language);
         }
-        return;
-      }
-
-      if (!nav.container) {
-        return;
-      }
-
-      if (msg.showOutline !== undefined) {
-        if (nav.outlineToggleBtn) {
-          nav.outlineToggleBtn.style.display = SETTINGS.showOutline ? '' : 'none';
+        if (msg.themeMode !== undefined) {
+          SETTINGS.themeMode = msg.themeMode;
+          applyThemeMode(msg.themeMode);
         }
 
-        if (nav.outlinePanel) {
-          if (!SETTINGS.showOutline) {
-            nav.toggleOutline(false);
+        const nav = window.__chatdotNav;
+        if (!nav) {
+          return;
+        }
+
+        if (msg.enabled !== undefined) {
+          if (SETTINGS.enabled) {
+            nav.init();
+          } else {
+            nav.destroy();
           }
-          nav.outlinePanel.style.display = SETTINGS.showOutline ? '' : 'none';
+          return;
         }
-      }
 
-      nav.scheduleConversationSync(false, 0);
+        if (!nav.container) {
+          return;
+        }
+
+        if (msg.language !== undefined) {
+          nav.applyLocalizedText();
+        }
+
+        if (msg.showOutline !== undefined) {
+          if (nav.outlineToggleBtn) {
+            nav.outlineToggleBtn.style.display = SETTINGS.showOutline ? '' : 'none';
+          }
+
+          if (nav.outlinePanel) {
+            if (!SETTINGS.showOutline) {
+              nav.toggleOutline(false);
+            }
+            nav.outlinePanel.style.display = SETTINGS.showOutline ? '' : 'none';
+          }
+        }
+
+        nav.scheduleConversationSync(false, 0);
+      });
     });
   }
 

@@ -34,6 +34,7 @@
 
     body {
       width: 320px;
+      max-height: 560px;
       font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: var(--bg);
       color: var(--text-main);
@@ -41,11 +42,12 @@
       -webkit-font-smoothing: antialiased;
       user-select: none;
       overflow-x: hidden;
+      overflow-y: hidden;
     }
 
     /* ---- Header ---- */
     .header {
-      padding: 16px 18px 14px;
+      padding: 10px 16px 9px;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -58,7 +60,7 @@
       z-index: 50;
     }
     .logo {
-      width: 30px; height: 30px;
+      width: 28px; height: 28px;
       border-radius: 8px;
       overflow: hidden;
       flex-shrink: 0;
@@ -67,7 +69,7 @@
       width: 100%; height: 100%; object-fit: cover;
     }
     .header-title {
-      font-size: 16px; font-weight: 600; letter-spacing: -0.3px;
+      font-size: 15px; font-weight: 600; letter-spacing: -0.3px;
       color: var(--text-main);
     }
     .header-right {
@@ -80,7 +82,7 @@
     }
 
     .icon-btn {
-      width: 32px; height: 32px;
+      width: 28px; height: 28px;
       border: 1px solid transparent;
       background: transparent;
       color: var(--text-muted);
@@ -98,7 +100,7 @@
       background: var(--accent-light);
       color: var(--accent-deep);
     }
-    .icon-btn svg { width: 18px; height: 18px; }
+    .icon-btn svg { width: 17px; height: 17px; }
 
     /* ---- Language Dropdown ---- */
     .lang-popup {
@@ -135,8 +137,8 @@
 
     /* ---- Main Container ---- */
     .container {
-      padding: 12px 14px;
-      display: flex; flex-direction: column; gap: 10px;
+      padding: 8px 14px;
+      display: flex; flex-direction: column; gap: 8px;
     }
 
     /* ---- Group Card ---- */
@@ -149,7 +151,7 @@
     }
     .row {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 13px 16px;
+      padding: 9px 14px;
       cursor: pointer;
       transition: background 0.15s;
     }
@@ -158,22 +160,22 @@
       border-bottom: 1px solid var(--border-light);
     }
     .row-info {
-      display: flex; flex-direction: column; gap: 3px;
+      display: flex; flex-direction: column; gap: 2px;
     }
     .row-title {
-      font-size: 13px; font-weight: 500; color: var(--text-main);
+      font-size: 12px; font-weight: 500; color: var(--text-main);
     }
     .row-desc {
-      font-size: 11px; color: var(--text-muted);
-      line-height: 1.4;
+      font-size: 10px; color: var(--text-muted);
+      line-height: 1.3;
     }
 
     /* ---- Pill Toggle ---- */
     .toggle {
       position: relative;
-      width: 40px; height: 22px;
+      width: 38px; height: 20px;
       background: var(--switch-off);
-      border-radius: 11px;
+      border-radius: 10px;
       flex-shrink: 0; margin-left: 12px;
       transition: all 0.3s;
       cursor: pointer;
@@ -183,7 +185,7 @@
       content: '';
       position: absolute;
       top: 2px; left: 2px;
-      width: 18px; height: 18px;
+      width: 16px; height: 16px;
       background: #fff;
       border-radius: 50%;
       transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -206,8 +208,8 @@
     }
     .seg-btn {
       flex: 1;
-      padding: 7px 12px;
-      font-size: 12px; font-weight: 500;
+      padding: 5px 10px;
+      font-size: 11px; font-weight: 500;
       color: var(--text-muted);
       background: transparent; border: none;
       border-radius: 7px;
@@ -225,10 +227,10 @@
 
     /* ---- Status Indicator ---- */
     .status-bar {
-      margin: 4px 14px 0;
-      padding: 9px;
+      margin: 2px 14px 0;
+      padding: 7px;
       border-radius: 10px;
-      font-size: 11px; font-weight: 600;
+      font-size: 10px; font-weight: 600;
       text-align: center;
       border: 1px solid transparent;
       display: flex; align-items: center; justify-content: center; gap: 6px;
@@ -378,15 +380,15 @@
 
     /* ---- Footer ---- */
     .footer {
-      padding: 12px 14px 14px;
-      display: flex; flex-direction: column; gap: 10px;
+      padding: 8px 14px 10px;
+      display: flex; flex-direction: column; gap: 6px;
       border-top: 1px solid var(--border-light);
-      margin-top: 4px;
+      margin-top: 2px;
     }
     .footer-bottom {
       display: flex; align-items: center; justify-content: space-between;
       color: var(--text-muted);
-      font-size: 11px;
+      font-size: 10px;
     }
     .version {
       font-weight: 500;
@@ -399,10 +401,10 @@
     .star-btn {
       width: 100%;
       display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-      padding: 11px 12px; border-radius: 12px;
+      padding: 8px 10px; border-radius: 12px;
       background: linear-gradient(135deg, #a8d4e0 0%, #7ecbc5 100%);
       color: #fff; text-decoration: none;
-      font-weight: 600; font-size: 13px;
+      font-weight: 600; font-size: 12px;
       transition: all 0.25s;
       border: none;
       box-shadow: 0 2px 10px rgba(126, 203, 197, 0.3);
@@ -416,27 +418,27 @@
     .star-btn:active {
       transform: translateY(0);
     }
-    .star-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .star-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
     .star-copy {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      gap: 2px;
+      gap: 1px;
     }
     .star-title {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
       line-height: 1.1;
     }
     .star-desc {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 500;
       color: rgba(255, 255, 255, 0.86);
       line-height: 1.3;
     }
     .icon-link {
-      width: 32px;
-      height: 32px;
+      width: 28px;
+      height: 28px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -452,8 +454,8 @@
       border-color: var(--card-border);
     }
     .icon-link svg {
-      width: 17px;
-      height: 17px;
+      width: 16px;
+      height: 16px;
     }
   </style>
 </head>
@@ -476,7 +478,7 @@
         </svg>
       </button>
       <div class="dropdown-container">
-        <button class="icon-btn" id="btn-lang" title="Language" aria-label="Language">
+        <button class="icon-btn" id="btn-lang" data-i18n-title="language_button" data-i18n-aria-label="language_button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"></circle>
             <line x1="2" y1="12" x2="22" y2="12"></line>
@@ -505,7 +507,7 @@
     <div class="group">
       <label class="row">
         <div class="row-info">
-          <div class="row-title" data-i18n="enable_nav">启用导航栏</div>
+          <div class="row-title" data-i18n="enable_nav"></div>
         </div>
         <div class="toggle">
           <input type="checkbox" id="toggle-enabled" checked>
@@ -513,8 +515,8 @@
       </label>
       <label class="row">
         <div class="row-info">
-          <div class="row-title" data-i18n="show_preview">悬浮预览</div>
-          <div class="row-desc" data-i18n="show_preview_desc">导航按钮悬停显示消息内容</div>
+          <div class="row-title" data-i18n="show_preview"></div>
+          <div class="row-desc" data-i18n="show_preview_desc"></div>
         </div>
         <div class="toggle">
           <input type="checkbox" id="toggle-preview" checked>
@@ -522,8 +524,8 @@
       </label>
       <label class="row">
         <div class="row-info">
-          <div class="row-title" data-i18n="show_outline">消息大纲</div>
-          <div class="row-desc" data-i18n="show_outline_desc">侧边栏显示对话索引</div>
+          <div class="row-title" data-i18n="show_outline"></div>
+          <div class="row-desc" data-i18n="show_outline_desc"></div>
         </div>
         <div class="toggle">
           <input type="checkbox" id="toggle-outline" checked>
@@ -534,13 +536,13 @@
     <div class="group">
       <div class="row" style="flex-direction: column; align-items: stretch; gap: 10px; cursor: default;">
         <div class="row-info">
-          <div class="row-title" data-i18n="display_mode">显示模式</div>
-          <div class="row-desc" data-i18n="display_mode_desc">控制导航栏的配色主题</div>
+          <div class="row-title" data-i18n="display_mode"></div>
+          <div class="row-desc" data-i18n="display_mode_desc"></div>
         </div>
         <div class="segment" id="theme-mode">
-          <button class="seg-btn" data-value="light" data-i18n="theme_light">浅色</button>
-          <button class="seg-btn" data-value="dark" data-i18n="theme_dark">深色</button>
-          <button class="seg-btn active" data-value="system" data-i18n="theme_system">跟随系统</button>
+          <button class="seg-btn" data-value="light" data-i18n="theme_light"></button>
+          <button class="seg-btn" data-value="dark" data-i18n="theme_dark"></button>
+          <button class="seg-btn active" data-value="system" data-i18n="theme_system"></button>
         </div>
       </div>
     </div>
@@ -548,11 +550,11 @@
     <div class="group">
       <div class="row" style="flex-direction: column; align-items: stretch; gap: 10px; cursor: default;">
         <div class="row-info">
-          <div class="row-title" data-i18n="scroll_mode">滚动模式</div>
+          <div class="row-title" data-i18n="scroll_mode"></div>
         </div>
         <div class="segment" id="scroll-mode">
-          <button class="seg-btn active" data-value="smooth" data-i18n="smooth">平滑</button>
-          <button class="seg-btn" data-value="instant" data-i18n="instant">瞬移</button>
+          <button class="seg-btn active" data-value="smooth" data-i18n="smooth"></button>
+          <button class="seg-btn" data-value="instant" data-i18n="instant"></button>
         </div>
       </div>
     </div>
@@ -560,20 +562,20 @@
   </div>
 
   <div id="status" class="status-bar active">
-    <span data-i18n="status_active">导航已启用</span>
+    <span data-i18n="status_active"></span>
   </div>
 
   <div class="footer">
     <a id="review-link" href="https://chromewebstore.google.com/" target="_blank" rel="noreferrer" class="star-btn">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
       <span class="star-copy">
-        <span class="star-title" data-i18n="review_support">好评支持</span>
-        <span class="star-desc" data-i18n="review_support_desc">前往 Chrome 商店评分，帮助更多用户发现 ChatDot</span>
+        <span class="star-title" data-i18n="review_support"></span>
+        <span class="star-desc" data-i18n="review_support_desc"></span>
       </span>
     </a>
     <div class="footer-bottom">
       <div class="version">
-        <span data-i18n="version">版本</span> <span id="version-num">1.0.0</span>
+        <span data-i18n="version"></span> <span id="version-num">1.0.0</span>
       </div>
       <a id="github-link" href="https://github.com/Lcc1ccl/chatdot" target="_blank" rel="noreferrer" class="icon-link" data-i18n-title="github_repo" data-i18n-aria-label="github_repo">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.418 22 12c0-5.523-4.477-10-10-10z"></path></svg>
@@ -584,7 +586,7 @@
   <div id="changelog-modal" class="modal-backdrop" aria-hidden="true">
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="changelog-title">
       <div class="modal-header">
-        <div class="modal-title" id="changelog-title" data-i18n="changelog_title">更新日志</div>
+        <div class="modal-title" id="changelog-title" data-i18n="changelog_title"></div>
         <button id="changelog-close" class="modal-close" type="button" data-i18n-title="changelog_close" data-i18n-aria-label="changelog_close">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -596,6 +598,7 @@
     </div>
   </div>
 
+  <script src="localization.js"></script>
   <script src="popup-logic.js"></script>
   <script src="popup.js"></script>
 </body>

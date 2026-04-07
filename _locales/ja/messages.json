@@ -1,0 +1,119 @@
+{
+  "extName": {
+    "message": "ChatDot - AI チャットナビ"
+  },
+  "extDescription": {
+    "message": "ChatGPT、Gemini、Claude、豆包に右側ナビゲーターとメッセージ一覧を追加し、履歴移動と文脈確認を高速化します。"
+  },
+  "extActionTitle": {
+    "message": "ChatDot の設定を開く"
+  },
+  "enable_nav": {
+    "message": "ナビを有効化"
+  },
+  "show_preview": {
+    "message": "ホバープレビュー"
+  },
+  "show_preview_desc": {
+    "message": "ホバーでメッセージを表示"
+  },
+  "show_outline": {
+    "message": "アウトライン"
+  },
+  "show_outline_desc": {
+    "message": "会話インデックスを表示"
+  },
+  "display_mode": {
+    "message": "表示モード"
+  },
+  "display_mode_desc": {
+    "message": "サイドバーの配色テーマ"
+  },
+  "theme_light": {
+    "message": "ライト"
+  },
+  "theme_dark": {
+    "message": "ダーク"
+  },
+  "theme_system": {
+    "message": "システム"
+  },
+  "scroll_mode": {
+    "message": "スクロール"
+  },
+  "smooth": {
+    "message": "スムーズ"
+  },
+  "instant": {
+    "message": "ジャンプ"
+  },
+  "status_active": {
+    "message": "ナビ有効"
+  },
+  "status_inactive": {
+    "message": "ナビ無効"
+  },
+  "version": {
+    "message": "バージョン"
+  },
+  "review_support": {
+    "message": "レビューで応援"
+  },
+  "review_support_desc": {
+    "message": "Chrome ウェブストアのレビュー画面を開きます"
+  },
+  "github_repo": {
+    "message": "GitHub リポジトリ"
+  },
+  "changelog_title": {
+    "message": "更新履歴"
+  },
+  "changelog_empty": {
+    "message": "更新履歴はまだありません。"
+  },
+  "changelog_open": {
+    "message": "更新履歴を見る"
+  },
+  "changelog_close": {
+    "message": "閉じる"
+  },
+  "language_button": {
+    "message": "言語を切り替え"
+  },
+  "outline_title": {
+    "message": "アウトライン"
+  },
+  "outline_pin": {
+    "message": "アウトラインを固定"
+  },
+  "outline_close": {
+    "message": "アウトラインを閉じる"
+  },
+  "jump_top": {
+    "message": "先頭へ移動"
+  },
+  "jump_prev_user": {
+    "message": "前のユーザーメッセージ"
+  },
+  "jump_next_user": {
+    "message": "次のユーザーメッセージ"
+  },
+  "jump_bottom": {
+    "message": "末尾へ移動"
+  },
+  "outline_empty": {
+    "message": "ユーザーメッセージはまだありません"
+  },
+  "preview_prev": {
+    "message": "↑ 前へ"
+  },
+  "preview_next": {
+    "message": "↓ 次へ"
+  },
+  "preview_at_top": {
+    "message": "すでに先頭です"
+  },
+  "preview_at_bottom": {
+    "message": "すでに末尾です"
+  }
+}

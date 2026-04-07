@@ -1,0 +1,119 @@
+{
+  "extName": {
+    "message": "ChatDot - AI 채팅 내비게이터"
+  },
+  "extDescription": {
+    "message": "ChatGPT, Gemini, Claude, 두바오에 우측 내비게이터와 메시지 개요를 추가해 빠른 이동과 문맥 미리보기를 제공합니다."
+  },
+  "extActionTitle": {
+    "message": "ChatDot 설정 열기"
+  },
+  "enable_nav": {
+    "message": "네비 활성화"
+  },
+  "show_preview": {
+    "message": "호버 미리보기"
+  },
+  "show_preview_desc": {
+    "message": "호버 시 메시지 표시"
+  },
+  "show_outline": {
+    "message": "개요"
+  },
+  "show_outline_desc": {
+    "message": "대화 색인 표시"
+  },
+  "display_mode": {
+    "message": "표시 모드"
+  },
+  "display_mode_desc": {
+    "message": "사이드바 색상 테마"
+  },
+  "theme_light": {
+    "message": "라이트"
+  },
+  "theme_dark": {
+    "message": "다크"
+  },
+  "theme_system": {
+    "message": "시스템"
+  },
+  "scroll_mode": {
+    "message": "스크롤 모드"
+  },
+  "smooth": {
+    "message": "부드럽게"
+  },
+  "instant": {
+    "message": "점프"
+  },
+  "status_active": {
+    "message": "네비 활성"
+  },
+  "status_inactive": {
+    "message": "네비 비활성"
+  },
+  "version": {
+    "message": "버전"
+  },
+  "review_support": {
+    "message": "리뷰로 응원하기"
+  },
+  "review_support_desc": {
+    "message": "Chrome 웹 스토어 리뷰 페이지를 엽니다"
+  },
+  "github_repo": {
+    "message": "GitHub 저장소"
+  },
+  "changelog_title": {
+    "message": "업데이트 로그"
+  },
+  "changelog_empty": {
+    "message": "업데이트 내역이 없습니다."
+  },
+  "changelog_open": {
+    "message": "업데이트 로그 보기"
+  },
+  "changelog_close": {
+    "message": "닫기"
+  },
+  "language_button": {
+    "message": "언어 전환"
+  },
+  "outline_title": {
+    "message": "개요"
+  },
+  "outline_pin": {
+    "message": "개요 고정"
+  },
+  "outline_close": {
+    "message": "개요 닫기"
+  },
+  "jump_top": {
+    "message": "맨 위로 이동"
+  },
+  "jump_prev_user": {
+    "message": "이전 사용자 메시지"
+  },
+  "jump_next_user": {
+    "message": "다음 사용자 메시지"
+  },
+  "jump_bottom": {
+    "message": "맨 아래로 이동"
+  },
+  "outline_empty": {
+    "message": "사용자 메시지가 아직 없습니다"
+  },
+  "preview_prev": {
+    "message": "↑ 이전"
+  },
+  "preview_next": {
+    "message": "↓ 다음"
+  },
+  "preview_at_top": {
+    "message": "이미 맨 위입니다"
+  },
+  "preview_at_bottom": {
+    "message": "이미 맨 아래입니다"
+  }
+}

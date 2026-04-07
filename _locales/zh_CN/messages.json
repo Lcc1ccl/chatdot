@@ -1,0 +1,119 @@
+{
+  "extName": {
+    "message": "ChatDot - AI 对话导航"
+  },
+  "extDescription": {
+    "message": "为 ChatGPT、Gemini、Claude 和豆包添加右侧导航栏与消息大纲，快速定位历史提问并预览上下文。"
+  },
+  "extActionTitle": {
+    "message": "打开 ChatDot 设置"
+  },
+  "enable_nav": {
+    "message": "启用导航栏"
+  },
+  "show_preview": {
+    "message": "悬浮预览"
+  },
+  "show_preview_desc": {
+    "message": "导航按钮悬停显示消息内容"
+  },
+  "show_outline": {
+    "message": "消息大纲"
+  },
+  "show_outline_desc": {
+    "message": "侧边栏显示对话索引"
+  },
+  "display_mode": {
+    "message": "显示模式"
+  },
+  "display_mode_desc": {
+    "message": "控制导航栏的配色主题"
+  },
+  "theme_light": {
+    "message": "浅色"
+  },
+  "theme_dark": {
+    "message": "深色"
+  },
+  "theme_system": {
+    "message": "跟随系统"
+  },
+  "scroll_mode": {
+    "message": "滚动模式"
+  },
+  "smooth": {
+    "message": "平滑"
+  },
+  "instant": {
+    "message": "瞬移"
+  },
+  "status_active": {
+    "message": "导航已启用"
+  },
+  "status_inactive": {
+    "message": "导航已停用"
+  },
+  "version": {
+    "message": "版本"
+  },
+  "review_support": {
+    "message": "好评支持"
+  },
+  "review_support_desc": {
+    "message": "前往 Chrome 商店评分，帮助更多用户发现 ChatDot"
+  },
+  "github_repo": {
+    "message": "GitHub 仓库"
+  },
+  "changelog_title": {
+    "message": "更新日志"
+  },
+  "changelog_empty": {
+    "message": "暂无更新记录。"
+  },
+  "changelog_open": {
+    "message": "查看更新日志"
+  },
+  "changelog_close": {
+    "message": "关闭"
+  },
+  "language_button": {
+    "message": "切换语言"
+  },
+  "outline_title": {
+    "message": "大纲"
+  },
+  "outline_pin": {
+    "message": "固定大纲"
+  },
+  "outline_close": {
+    "message": "关闭大纲"
+  },
+  "jump_top": {
+    "message": "跳到顶部"
+  },
+  "jump_prev_user": {
+    "message": "上一条用户消息"
+  },
+  "jump_next_user": {
+    "message": "下一条用户消息"
+  },
+  "jump_bottom": {
+    "message": "跳到底部"
+  },
+  "outline_empty": {
+    "message": "暂无用户消息"
+  },
+  "preview_prev": {
+    "message": "↑ 上一条"
+  },
+  "preview_next": {
+    "message": "↓ 下一条"
+  },
+  "preview_at_top": {
+    "message": "已在最顶部"
+  },
+  "preview_at_bottom": {
+    "message": "已在最底部"
+  }
+}
