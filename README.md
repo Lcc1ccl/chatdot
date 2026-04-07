@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-1.0.0-5ca8c8" alt="Version 1.0.0">
+  <img src="https://img.shields.io/badge/Version-1.1.0-5ca8c8" alt="Version 1.1.0">
   <img src="https://img.shields.io/badge/Manifest-V3-blue" alt="Manifest V3">
   <img src="https://img.shields.io/badge/License-MIT-green" alt="MIT License">
 </p>
@@ -49,12 +49,14 @@
 | 启用导航栏 | 整体开关 |
 | 悬浮预览 | 控制 hover 消息预览的显示 |
 | 消息大纲 | 控制大纲按钮和面板的显示 |
+| 显示模式 | Light / Dark / System |
 | 滚动模式 | 平滑滚动 / 瞬间跳转 |
 | 语言 | 中文 / English / 日本語 / 한국어 |
 
 ### 其他
 
 - **暗色模式** — 自动适配 ChatGPT 暗色主题
+- **主题切换** — 支持浅色 / 深色 / 跟随系统
 - **SPA 感知** — 切换对话时自动重置导航状态
 - **低打扰设计** — 侧边栏默认低透明度，鼠标悬停时才完全显示；内容不可滚动时自动隐藏
 
@@ -76,9 +78,10 @@
 | 平台 | 状态 |
 |------|------|
 | ChatGPT (chatgpt.com) | ✅ 已支持 |
-| Claude.ai | 🔜 计划中 |
-| Gemini | 🔜 计划中 |
-| DeepSeek | 🔜 计划中 |
+| Gemini | ✅ 已支持 |
+| Claude.ai | ✅ 已支持 |
+| DeepSeek | ✅ 已支持 |
+| 豆包 | ✅ 已支持 |
 
 ## 项目结构
 
@@ -88,8 +91,11 @@ chatdot/
 ├── content.js       # 内容脚本：DOM 检测 + 导航 UI + 大纲面板 + 消息预览
 ├── content.css      # 侧边栏 + 大纲面板样式（含暗色模式）
 ├── popup.html       # 设置面板 UI
-├── popup.js         # 设置逻辑 + i18n
+├── popup.js         # Popup 交互逻辑
+├── popup-logic.js   # Popup 文案、商店链接与 changelog 数据
 ├── icons/           # 扩展图标
+├── tests/           # 逻辑测试
+├── docs/            # 上架文案、报告与计划
 └── LICENSE
 ```
 

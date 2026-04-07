@@ -31,6 +31,7 @@
     scrollMode: 'smooth',
     showPreview: true,
     showOutline: true,
+    themeMode: 'system',
   };
 
   const PLATFORM_SELECTORS = {
@@ -45,8 +46,80 @@
         '[data-message-author-role="user"]',
         'div[data-message-author-role="user"]',
       ],
+      textExtract: ['.whitespace-pre-wrap', '[data-message-content]', 'div > div'],
+    },
+    gemini: {
+      scrollContainer: [
+        'infinite-scroller.chat-history',
+        'infinite-scroller[scrollable]',
+        '.chat-history',
+      ],
+      userMessage: [
+        '.user-query-container',
+        'div[class*="query-container"]',
+      ],
+      textExtract: ['.query-text', 'div[class*="query-text"]', 'p'],
+    },
+    claude: {
+      scrollContainer: [
+        'div[class*="flex-1"][class*="overflow-y"]',
+        'main div[class*="overflow-y-auto"]',
+        'div[class*="conversation-content"]',
+      ],
+      userMessage: [
+        '[data-testid="user-message"]',
+        '.font-user-message',
+        'div[class*="user-message"]',
+        'div[data-is-user="true"]',
+      ],
+      textExtract: ['p', 'div[class*="whitespace"]', 'span'],
+    },
+    deepseek: {
+      scrollContainer: [
+        'div[class*="chat-message-list"]',
+        'div[class*="conversation"][class*="scroll"]',
+        'main div[class*="overflow-y-auto"]',
+      ],
+      userMessage: [
+        'div[class*="chat-message"][class*="user"]',
+        'div[data-role="user"]',
+        'div[class*="user-message"]',
+      ],
+      textExtract: ['.ds-markdown', 'div[class*="message-content"]', 'p'],
+    },
+    doubao: {
+      scrollContainer: [
+        '[data-testid="message-list"]',
+        'div[class*="message-list"]',
+      ],
+      userMessage: [
+        '[data-testid="send_message"]',
+        'div[class*="send_message"]',
+      ],
+      textExtract: ['[data-testid="message_text_content"]', 'div[class*="text_content"]', 'span'],
     },
   };
+
+  function detectPlatform() {
+    const host = location.hostname;
+    if (host.includes('chatgpt.com') || host.includes('chat.openai.com')) return 'chatgpt';
+    if (host.includes('gemini.google.com')) return 'gemini';
+    if (host.includes('claude.ai')) return 'claude';
+    if (host.includes('chat.deepseek.com') || host.includes('deepseek.com')) return 'deepseek';
+    if (host.includes('doubao.com')) return 'doubao';
+    return 'chatgpt';
+  }
+
+  const currentPlatform = detectPlatform();
+  const CURRENT_SELECTORS = PLATFORM_SELECTORS[currentPlatform] || PLATFORM_SELECTORS.chatgpt;
+
+  function applyThemeMode(mode) {
+    if (!mode || mode === 'system') {
+      document.documentElement.removeAttribute('data-chatdot-theme');
+    } else {
+      document.documentElement.setAttribute('data-chatdot-theme', mode);
+    }
+  }
 
   const ICONS = {
     chevronsUp: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>',
@@ -61,6 +134,7 @@
     if (chrome?.storage?.local) {
       chrome.storage.local.get(SETTINGS, (data) => {
         Object.assign(SETTINGS, data);
+        applyThemeMode(SETTINGS.themeMode);
         if (callback) callback();
       });
       return;
@@ -103,7 +177,7 @@
   }
 
   function findScrollContainerFallback() {
-    for (const selector of PLATFORM_SELECTORS.chatgpt.scrollContainer) {
+    for (const selector of CURRENT_SELECTORS.scrollContainer) {
       try {
         const el = document.querySelector(selector);
         if (isScrollableElement(el)) {
@@ -128,13 +202,16 @@
   }
 
   function findUserMessages(root = document) {
-    return queryAll(PLATFORM_SELECTORS.chatgpt.userMessage, root);
+    return queryAll(CURRENT_SELECTORS.userMessage, root);
   }
 
   function extractMessageText(msgEl, maxLen = 80) {
-    const textEl = msgEl.querySelector('.whitespace-pre-wrap')
-      || msgEl.querySelector('[data-message-content]')
-      || msgEl.querySelector('div > div');
+    let textEl = null;
+    const extractSelectors = CURRENT_SELECTORS.textExtract || ['.whitespace-pre-wrap', '[data-message-content]', 'div > div'];
+    for (const sel of extractSelectors) {
+      textEl = msgEl.querySelector(sel);
+      if (textEl) break;
+    }
     const raw = (textEl || msgEl).textContent || '';
     const text = raw.replace(/\s+/g, ' ').trim();
     return text.length > maxLen ? `${text.slice(0, maxLen)}...` : text;
@@ -525,6 +602,14 @@
               continue;
             }
 
+            if (
+              nodeMatchesAnySelector(node, CURRENT_SELECTORS.scrollContainer)
+              || nodeMatchesAnySelector(node, CURRENT_SELECTORS.userMessage)
+            ) {
+              shouldSync = true;
+              break;
+            }
+
             if (this.scrollContainer && (node === this.scrollContainer || node.contains(this.scrollContainer))) {
               shouldSync = true;
               break;
@@ -535,13 +620,7 @@
               break;
             }
 
-            if (
-              nodeMatchesAnySelector(node, PLATFORM_SELECTORS.chatgpt.scrollContainer)
-              || nodeMatchesAnySelector(node, PLATFORM_SELECTORS.chatgpt.userMessage)
-            ) {
-              shouldSync = true;
-              break;
-            }
+
           }
 
           if (shouldSync) {
@@ -583,7 +662,7 @@
 
             layoutChanged = true;
 
-            if (nodeMatchesAnySelector(node, PLATFORM_SELECTORS.chatgpt.userMessage)) {
+            if (nodeMatchesAnySelector(node, CURRENT_SELECTORS.userMessage)) {
               snapshotChanged = true;
               break;
             }
@@ -1198,6 +1277,10 @@
       if (msg.scrollMode !== undefined) SETTINGS.scrollMode = msg.scrollMode;
       if (msg.showPreview !== undefined) SETTINGS.showPreview = msg.showPreview;
       if (msg.showOutline !== undefined) SETTINGS.showOutline = msg.showOutline;
+      if (msg.themeMode !== undefined) {
+        SETTINGS.themeMode = msg.themeMode;
+        applyThemeMode(msg.themeMode);
+      }
 
       const nav = window.__chatdotNav;
       if (!nav) {

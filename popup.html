@@ -72,7 +72,7 @@
     }
     .header-right {
       margin-left: auto;
-      display: flex; align-items: center;
+      display: flex; align-items: center; gap: 6px;
     }
 
     .dropdown-container {
@@ -258,6 +258,124 @@
       box-shadow: 0 0 6px var(--danger);
     }
 
+    /* ---- Modal ---- */
+    body.modal-open {
+      overflow: hidden;
+    }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(28, 47, 68, 0.34);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      z-index: 120;
+    }
+    .modal-backdrop.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-card {
+      width: 100%;
+      max-width: 292px;
+      max-height: 360px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      box-shadow: 0 18px 44px rgba(79, 112, 148, 0.22);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transform: translateY(10px) scale(0.98);
+      transition: transform 0.2s ease;
+    }
+    .modal-backdrop.show .modal-card {
+      transform: translateY(0) scale(1);
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .modal-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    .modal-close {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .modal-close:hover {
+      color: var(--accent-deep);
+      background: var(--accent-light);
+      border-color: var(--card-border);
+    }
+    .modal-close svg {
+      width: 16px;
+      height: 16px;
+    }
+    .modal-body {
+      padding: 10px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .changelog-entry {
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(123, 186, 212, 0.08);
+      border: 1px solid rgba(180, 210, 230, 0.24);
+    }
+    .changelog-entry-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .changelog-entry-version {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    .changelog-entry-date {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .changelog-entry-list {
+      margin: 0;
+      padding-left: 16px;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .changelog-empty {
+      padding: 14px 4px 4px;
+      color: var(--text-muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
     /* ---- Footer ---- */
     .footer {
       padding: 12px 14px 14px;
@@ -265,7 +383,7 @@
       border-top: 1px solid var(--border-light);
       margin-top: 4px;
     }
-    .footer-top {
+    .footer-bottom {
       display: flex; align-items: center; justify-content: space-between;
       color: var(--text-muted);
       font-size: 11px;
@@ -278,19 +396,10 @@
       font-family: 'JetBrains Mono', monospace;
       font-weight: 500; color: var(--accent-deep);
     }
-    .doc-link {
-      display: inline-flex; align-items: center; gap: 4px;
-      color: var(--text-muted); text-decoration: none;
-      transition: color 0.15s; font-weight: 500;
-      cursor: pointer;
-    }
-    .doc-link:hover { color: var(--accent-deep); }
-    .doc-link svg { width: 13px; height: 13px; }
-
     .star-btn {
       width: 100%;
-      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-      padding: 10px; border-radius: 10px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      padding: 11px 12px; border-radius: 12px;
       background: linear-gradient(135deg, #a8d4e0 0%, #7ecbc5 100%);
       color: #fff; text-decoration: none;
       font-weight: 600; font-size: 13px;
@@ -308,6 +417,44 @@
       transform: translateY(0);
     }
     .star-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .star-copy {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+    }
+    .star-title {
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.1;
+    }
+    .star-desc {
+      font-size: 11px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.86);
+      line-height: 1.3;
+    }
+    .icon-link {
+      width: 32px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 9px;
+      color: var(--text-muted);
+      text-decoration: none;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+    .icon-link:hover {
+      color: var(--accent-deep);
+      background: var(--accent-light);
+      border-color: var(--card-border);
+    }
+    .icon-link svg {
+      width: 17px;
+      height: 17px;
+    }
   </style>
 </head>
 <body>
@@ -318,8 +465,18 @@
     </div>
     <div class="header-title">ChatDot</div>
     <div class="header-right">
+      <button class="icon-btn" id="btn-changelog" data-i18n-title="changelog_open" data-i18n-aria-label="changelog_open">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 6h11"></path>
+          <path d="M9 12h11"></path>
+          <path d="M9 18h11"></path>
+          <path d="M4 6h.01"></path>
+          <path d="M4 12h.01"></path>
+          <path d="M4 18h.01"></path>
+        </svg>
+      </button>
       <div class="dropdown-container">
-        <button class="icon-btn" id="btn-lang" title="Language">
+        <button class="icon-btn" id="btn-lang" title="Language" aria-label="Language">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"></circle>
             <line x1="2" y1="12" x2="22" y2="12"></line>
@@ -377,6 +534,20 @@
     <div class="group">
       <div class="row" style="flex-direction: column; align-items: stretch; gap: 10px; cursor: default;">
         <div class="row-info">
+          <div class="row-title" data-i18n="display_mode">显示模式</div>
+          <div class="row-desc" data-i18n="display_mode_desc">控制导航栏的配色主题</div>
+        </div>
+        <div class="segment" id="theme-mode">
+          <button class="seg-btn" data-value="light" data-i18n="theme_light">浅色</button>
+          <button class="seg-btn" data-value="dark" data-i18n="theme_dark">深色</button>
+          <button class="seg-btn active" data-value="system" data-i18n="theme_system">跟随系统</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="row" style="flex-direction: column; align-items: stretch; gap: 10px; cursor: default;">
+        <div class="row-info">
           <div class="row-title" data-i18n="scroll_mode">滚动模式</div>
         </div>
         <div class="segment" id="scroll-mode">
@@ -393,21 +564,39 @@
   </div>
 
   <div class="footer">
-    <div class="footer-top">
+    <a id="review-link" href="https://chromewebstore.google.com/" target="_blank" rel="noreferrer" class="star-btn">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+      <span class="star-copy">
+        <span class="star-title" data-i18n="review_support">好评支持</span>
+        <span class="star-desc" data-i18n="review_support_desc">前往 Chrome 商店评分，帮助更多用户发现 ChatDot</span>
+      </span>
+    </a>
+    <div class="footer-bottom">
       <div class="version">
         <span data-i18n="version">版本</span> <span id="version-num">1.0.0</span>
       </div>
-      <a href="https://github.com/Lcc1ccl/chatdot" target="_blank" class="doc-link">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-        <span data-i18n="official_doc">官方文档</span>
+      <a id="github-link" href="https://github.com/Lcc1ccl/chatdot" target="_blank" rel="noreferrer" class="icon-link" data-i18n-title="github_repo" data-i18n-aria-label="github_repo">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.418 22 12c0-5.523-4.477-10-10-10z"></path></svg>
       </a>
     </div>
-    <a href="https://github.com/Lcc1ccl/chatdot" target="_blank" class="star-btn">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.418 22 12c0-5.523-4.477-10-10-10z"></path></svg>
-      <span data-i18n="star_project">为项目点亮 ⭐</span>
-    </a>
   </div>
 
+  <div id="changelog-modal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="changelog-title">
+      <div class="modal-header">
+        <div class="modal-title" id="changelog-title" data-i18n="changelog_title">更新日志</div>
+        <button id="changelog-close" class="modal-close" type="button" data-i18n-title="changelog_close" data-i18n-aria-label="changelog_close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body" id="changelog-list"></div>
+    </div>
+  </div>
+
+  <script src="popup-logic.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

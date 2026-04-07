@@ -1,6 +1,11 @@
 /* ========================================
    ChatDot — 对话跳转侧边栏
    色调风格：冰蓝极简，与 Logo 统一
+
+   主题模式：
+   - data-chatdot-theme="light" → 强制亮色
+   - data-chatdot-theme="dark"  → 强制暗色
+   - 无属性 (system)            → 跟随系统/平台
    ======================================== */
 
 /* ---- 侧边栏容器 ---- */
@@ -529,3 +534,100 @@ html[data-theme="dark"] .chatdot-outline-item.active .chatdot-outline-num,
     max-height: 40vh;
   }
 }
+
+/* ============================================
+   强制暗色模式 (data-chatdot-theme="dark")
+   ============================================ */
+html[data-chatdot-theme="dark"] .chatdot-nav-btn {
+  background: #2a3340;
+  border-color: rgba(160, 210, 230, 0.12);
+  color: #8a9bb0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+html[data-chatdot-theme="dark"] .chatdot-nav-btn:hover {
+  background: #334050;
+  color: #8ed4cc;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+html[data-chatdot-theme="dark"] .chatdot-nav-counter {
+  color: #6e7e90;
+}
+html[data-chatdot-theme="dark"] .chatdot-msg-preview {
+  background: #2a3340;
+  border-color: rgba(160, 210, 230, 0.12);
+  color: #d0dce6;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+html[data-chatdot-theme="dark"] .chatdot-msg-preview::after {
+  background: #2a3340;
+  border-color: rgba(160, 210, 230, 0.12);
+}
+html[data-chatdot-theme="dark"] .chatdot-preview-label { color: #6e7e90; }
+
+html[data-chatdot-theme="dark"] .chatdot-outline-panel {
+  background: #2a3340;
+  border-color: rgba(160, 210, 230, 0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+html[data-chatdot-theme="dark"] .chatdot-outline-header { border-color: rgba(160, 210, 230, 0.1); }
+html[data-chatdot-theme="dark"] .chatdot-outline-title { color: #d0dce6; }
+html[data-chatdot-theme="dark"] .chatdot-outline-close,
+html[data-chatdot-theme="dark"] .chatdot-outline-pin { color: #6e7e90; }
+html[data-chatdot-theme="dark"] .chatdot-outline-close:hover,
+html[data-chatdot-theme="dark"] .chatdot-outline-pin:hover { background: rgba(123, 186, 212, 0.12); color: #d0dce6; }
+html[data-chatdot-theme="dark"] .chatdot-outline-pin.active { color: #8ed4cc; background: rgba(126, 203, 197, 0.15); }
+html[data-chatdot-theme="dark"] .chatdot-outline-pin.active:hover { background: rgba(126, 203, 197, 0.25); }
+html[data-chatdot-theme="dark"] .chatdot-outline-item { color: #8a9bb0; }
+html[data-chatdot-theme="dark"] .chatdot-outline-item:hover { background: rgba(123, 186, 212, 0.1); color: #d0dce6; }
+html[data-chatdot-theme="dark"] .chatdot-outline-item.active { background: rgba(123, 186, 212, 0.15); color: #d0dce6; }
+html[data-chatdot-theme="dark"] .chatdot-outline-num { background: #344050; color: #8a9bb0; }
+html[data-chatdot-theme="dark"] .chatdot-outline-item.active .chatdot-outline-num { background: linear-gradient(135deg, #a8d4e0, #7ecbc5); color: #fff; }
+html[data-chatdot-theme="dark"] .chatdot-outline-list::-webkit-scrollbar-thumb { background: rgba(160, 210, 230, 0.15); }
+
+/* ============================================
+   强制亮色模式 (data-chatdot-theme="light")
+   覆盖系统暗色 + 平台暗色类名
+   ============================================ */
+html[data-chatdot-theme="light"] .chatdot-nav-btn {
+  background: #ffffff !important;
+  border-color: rgba(180, 210, 230, 0.35) !important;
+  color: #8a9bb0 !important;
+  box-shadow: 0 2px 8px rgba(160, 195, 220, 0.15) !important;
+}
+html[data-chatdot-theme="light"] .chatdot-nav-btn:hover {
+  background: #f0f6fa !important;
+  color: #5ca8c8 !important;
+  box-shadow: 0 4px 16px rgba(140, 190, 215, 0.22) !important;
+}
+html[data-chatdot-theme="light"] .chatdot-nav-counter {
+  color: #8a9bb0 !important;
+}
+html[data-chatdot-theme="light"] .chatdot-msg-preview {
+  background: #ffffff !important;
+  border-color: rgba(180, 210, 230, 0.35) !important;
+  color: #2c3e50 !important;
+  box-shadow: 0 4px 20px rgba(140, 190, 215, 0.15) !important;
+}
+html[data-chatdot-theme="light"] .chatdot-msg-preview::after {
+  background: #ffffff !important;
+  border-color: rgba(180, 210, 230, 0.35) !important;
+}
+html[data-chatdot-theme="light"] .chatdot-preview-label { color: #8a9bb0 !important; }
+
+html[data-chatdot-theme="light"] .chatdot-outline-panel {
+  background: #ffffff !important;
+  border-color: rgba(180, 210, 230, 0.35) !important;
+  box-shadow: 0 8px 32px rgba(140, 190, 215, 0.15) !important;
+}
+html[data-chatdot-theme="light"] .chatdot-outline-header { border-color: rgba(180, 210, 230, 0.25) !important; }
+html[data-chatdot-theme="light"] .chatdot-outline-title { color: #2c3e50 !important; }
+html[data-chatdot-theme="light"] .chatdot-outline-close,
+html[data-chatdot-theme="light"] .chatdot-outline-pin { color: #8a9bb0 !important; }
+html[data-chatdot-theme="light"] .chatdot-outline-close:hover,
+html[data-chatdot-theme="light"] .chatdot-outline-pin:hover { background: rgba(123, 186, 212, 0.1) !important; color: #2c3e50 !important; }
+html[data-chatdot-theme="light"] .chatdot-outline-pin.active { color: #5ca8c8 !important; background: rgba(92, 168, 200, 0.1) !important; }
+html[data-chatdot-theme="light"] .chatdot-outline-item { color: #6a7d90 !important; }
+html[data-chatdot-theme="light"] .chatdot-outline-item:hover { background: rgba(123, 186, 212, 0.08) !important; color: #2c3e50 !important; }
+html[data-chatdot-theme="light"] .chatdot-outline-item.active { background: rgba(123, 186, 212, 0.12) !important; color: #2c3e50 !important; }
+html[data-chatdot-theme="light"] .chatdot-outline-num { background: #e0ecf2 !important; color: #6a7d90 !important; }
+html[data-chatdot-theme="light"] .chatdot-outline-item.active .chatdot-outline-num { background: linear-gradient(135deg, #a8d4e0, #7ecbc5) !important; color: #fff !important; }
