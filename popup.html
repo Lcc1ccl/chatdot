@@ -34,6 +34,7 @@
 
     body {
       width: 320px;
+      max-height: 560px;
       font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: var(--bg);
       color: var(--text-main);
@@ -41,11 +42,12 @@
       -webkit-font-smoothing: antialiased;
       user-select: none;
       overflow-x: hidden;
+      overflow-y: hidden;
     }
 
     /* ---- Header ---- */
     .header {
-      padding: 16px 18px 14px;
+      padding: 10px 16px 9px;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -58,7 +60,7 @@
       z-index: 50;
     }
     .logo {
-      width: 30px; height: 30px;
+      width: 28px; height: 28px;
       border-radius: 8px;
       overflow: hidden;
       flex-shrink: 0;
@@ -67,7 +69,7 @@
       width: 100%; height: 100%; object-fit: cover;
     }
     .header-title {
-      font-size: 16px; font-weight: 600; letter-spacing: -0.3px;
+      font-size: 15px; font-weight: 600; letter-spacing: -0.3px;
       color: var(--text-main);
     }
     .header-right {
@@ -80,7 +82,7 @@
     }
 
     .icon-btn {
-      width: 32px; height: 32px;
+      width: 28px; height: 28px;
       border: 1px solid transparent;
       background: transparent;
       color: var(--text-muted);
@@ -98,7 +100,7 @@
       background: var(--accent-light);
       color: var(--accent-deep);
     }
-    .icon-btn svg { width: 18px; height: 18px; }
+    .icon-btn svg { width: 17px; height: 17px; }
 
     /* ---- Language Dropdown ---- */
     .lang-popup {
@@ -135,8 +137,8 @@
 
     /* ---- Main Container ---- */
     .container {
-      padding: 12px 14px;
-      display: flex; flex-direction: column; gap: 10px;
+      padding: 8px 14px;
+      display: flex; flex-direction: column; gap: 8px;
     }
 
     /* ---- Group Card ---- */
@@ -149,7 +151,7 @@
     }
     .row {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 13px 16px;
+      padding: 9px 14px;
       cursor: pointer;
       transition: background 0.15s;
     }
@@ -158,22 +160,22 @@
       border-bottom: 1px solid var(--border-light);
     }
     .row-info {
-      display: flex; flex-direction: column; gap: 3px;
+      display: flex; flex-direction: column; gap: 2px;
     }
     .row-title {
-      font-size: 13px; font-weight: 500; color: var(--text-main);
+      font-size: 12px; font-weight: 500; color: var(--text-main);
     }
     .row-desc {
-      font-size: 11px; color: var(--text-muted);
-      line-height: 1.4;
+      font-size: 10px; color: var(--text-muted);
+      line-height: 1.3;
     }
 
     /* ---- Pill Toggle ---- */
     .toggle {
       position: relative;
-      width: 40px; height: 22px;
+      width: 38px; height: 20px;
       background: var(--switch-off);
-      border-radius: 11px;
+      border-radius: 10px;
       flex-shrink: 0; margin-left: 12px;
       transition: all 0.3s;
       cursor: pointer;
@@ -183,7 +185,7 @@
       content: '';
       position: absolute;
       top: 2px; left: 2px;
-      width: 18px; height: 18px;
+      width: 16px; height: 16px;
       background: #fff;
       border-radius: 50%;
       transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -206,8 +208,8 @@
     }
     .seg-btn {
       flex: 1;
-      padding: 7px 12px;
-      font-size: 12px; font-weight: 500;
+      padding: 5px 10px;
+      font-size: 11px; font-weight: 500;
       color: var(--text-muted);
       background: transparent; border: none;
       border-radius: 7px;
@@ -225,10 +227,10 @@
 
     /* ---- Status Indicator ---- */
     .status-bar {
-      margin: 4px 14px 0;
-      padding: 9px;
+      margin: 2px 14px 0;
+      padding: 7px;
       border-radius: 10px;
-      font-size: 11px; font-weight: 600;
+      font-size: 10px; font-weight: 600;
       text-align: center;
       border: 1px solid transparent;
       display: flex; align-items: center; justify-content: center; gap: 6px;
@@ -378,15 +380,15 @@
 
     /* ---- Footer ---- */
     .footer {
-      padding: 12px 14px 14px;
-      display: flex; flex-direction: column; gap: 10px;
+      padding: 8px 14px 10px;
+      display: flex; flex-direction: column; gap: 6px;
       border-top: 1px solid var(--border-light);
-      margin-top: 4px;
+      margin-top: 2px;
     }
     .footer-bottom {
       display: flex; align-items: center; justify-content: space-between;
       color: var(--text-muted);
-      font-size: 11px;
+      font-size: 10px;
     }
     .version {
       font-weight: 500;
@@ -399,10 +401,10 @@
     .star-btn {
       width: 100%;
       display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-      padding: 11px 12px; border-radius: 12px;
+      padding: 8px 10px; border-radius: 12px;
       background: linear-gradient(135deg, #a8d4e0 0%, #7ecbc5 100%);
       color: #fff; text-decoration: none;
-      font-weight: 600; font-size: 13px;
+      font-weight: 600; font-size: 12px;
       transition: all 0.25s;
       border: none;
       box-shadow: 0 2px 10px rgba(126, 203, 197, 0.3);
@@ -416,27 +418,27 @@
     .star-btn:active {
       transform: translateY(0);
     }
-    .star-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .star-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
     .star-copy {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      gap: 2px;
+      gap: 1px;
     }
     .star-title {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
       line-height: 1.1;
     }
     .star-desc {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 500;
       color: rgba(255, 255, 255, 0.86);
       line-height: 1.3;
     }
     .icon-link {
-      width: 32px;
-      height: 32px;
+      width: 28px;
+      height: 28px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -452,8 +454,8 @@
       border-color: var(--card-border);
     }
     .icon-link svg {
-      width: 17px;
-      height: 17px;
+      width: 16px;
+      height: 16px;
     }
   </style>
 </head>
