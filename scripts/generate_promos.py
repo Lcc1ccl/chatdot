@@ -9,7 +9,7 @@ except ModuleNotFoundError as error:
 REPO_ROOT = Path(__file__).resolve().parent.parent
 OUT_DIR = REPO_ROOT / "docs" / "final"
 ICON_PATH = REPO_ROOT / "icons" / "icon128.png"
-PLATFORMS = ["ChatGPT", "Gemini", "Claude", "DeepSeek", "Doubao"]
+PLATFORMS = ["ChatGPT", "Gemini", "Claude", "Doubao"]
 PALETTE = {
     "mint_bg_top": (243, 250, 247),
     "mint_bg_bottom": (219, 240, 235),
@@ -239,7 +239,7 @@ def generate_small_promo(icon):
     draw.text((246, 188), "•", fill=PALETTE["mint_border_strong"], font=feature_font)
     draw.text((260, 188), "悬浮预览", fill=PALETTE["mint_primary_deep"], font=feature_font)
     draw.rounded_rectangle((60, 214, 280, 242), radius=14, fill=(247, 252, 250), outline=PALETTE["mint_border"], width=1)
-    draw.text((74, 220), "支持 5 大主流 AI 对话平台", fill=PALETTE["text_secondary"], font=badge_font)
+    draw.text((74, 220), "更多平台逐步接入中", fill=PALETTE["text_secondary"], font=badge_font)
 
     output_path = OUT_DIR / "small_promo.jpg"
     image.save(output_path, quality=95)

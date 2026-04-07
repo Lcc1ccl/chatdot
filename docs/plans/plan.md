@@ -9,7 +9,7 @@
 | 维度 | 状态 |
 |------|------|
 | 版本号 | `1.1.0`（manifest.json） |
-| 平台支持 | ChatGPT / Gemini / Claude / DeepSeek / 豆包 |
+| 平台支持 | ChatGPT / Gemini / Claude / 豆包（更多平台逐步接入中） |
 | 主题模式 | Light / Dark / System 跟随 |
 | 国际化 | 中文 / English / 日本語 / 한국어 |
 | 商店状态 | ✅ 1.0 已上架，当前推进 `v1.1.0` 更新版 |
@@ -27,7 +27,7 @@
 
 - [ ] **更新商店宣传图**
   - 当前已有：`docs/final/small_promo.jpg`（440×280）、`docs/final/marquee_promo.jpg`（1400×560）
-  - 需更新内容：体现新增平台（Gemini / Claude / DeepSeek / 豆包）支持
+  - 需更新内容：体现新增平台（Gemini / Claude / 豆包）支持，并保留“更多平台逐步接入中”口径
   - 截图规格：1280×800，全出血，无边框
   - 截图建议（3张）：
     1. 核心功能总览（右侧导航栏注入效果）
@@ -53,13 +53,13 @@
   - 在 Popup 顶部或标题栏区域新增一个更新日志图标（建议：📋 或 changelog 类图标）
   - 点击后以**弹窗（modal）** 形式展示最近更新内容（内容写死在 `popup.js` 中，无需网络请求）
   - 弹窗内容格式：版本号 + 日期 + 更新条目列表，最多展示最近 3 个版本
-  - 初始内容：v1.1.0（新增 Gemini/Claude/DeepSeek/豆包支持 + 主题模式）
+  - 初始内容：v1.1.0（新增 Gemini/Claude/豆包支持 + 主题模式，更多平台逐步接入中）
   - 涉及文件：`popup.html`（图标 + modal 结构）、`popup.js`（事件与渲染）、`popup-logic.js`（changelog 数据 + i18n）
   - 国际化：changelog 条目同步提供中 / EN 两套（日韩可复用英文）
 
 - [ ] **执行手动冒烟测试**
   - 参照 `docs/checklists/manual-test-checklist.md`
-  - 覆盖：ChatGPT、Gemini、Claude（需绕过 Cloudflare）、DeepSeek、豆包
+  - 覆盖：ChatGPT、Gemini、Claude（需绕过 Cloudflare）、豆包；更多平台逐步接入中
   - 记录测试结果至 `docs/reports/smoke-test-v1.1.0.md`
 
 - [x] **整理目录结构**

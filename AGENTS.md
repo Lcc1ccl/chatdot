@@ -2,11 +2,11 @@
 
 ## 项目定位
 - 这是一个原生 Chrome Extension（Manifest V3），不是 React、Vite、Node、后端服务或需要构建产物的 Web App。
-- 项目目标是在 AI 对话页面（ChatGPT / Gemini / Claude / DeepSeek / 豆包）注入右侧浮动导航栏，提供顶部/底部跳转、上一条/下一条用户消息跳转、悬浮预览、大纲面板和设置联动。
+- 项目目标是在 AI 对话页面（ChatGPT / Gemini / Claude / 豆包，更多平台逐步接入中）注入右侧浮动导航栏，提供顶部/底部跳转、上一条/下一条用户消息跳转、悬浮预览、大纲面板和设置联动。
 - 默认开发方式是“直接将仓库目录作为已解压扩展加载到 Chrome”，除非明确要求，不要引入构建链、包管理器迁移、TypeScript 重写或框架化改造。
 
 ## 关键文件
-- `manifest.json`：扩展入口与权限配置。当前为 Manifest V3，只声明 `storage` 权限，并在 chatgpt.com / chat.openai.com / gemini.google.com / claude.ai / chat.deepseek.com / www.doubao.com 注入 `content.js` 与 `content.css`。
+- `manifest.json`：扩展入口与权限配置。当前为 Manifest V3，只声明 `storage` 权限，并在 chatgpt.com / chat.openai.com / gemini.google.com / claude.ai / www.doubao.com 注入 `content.js` 与 `content.css`。
 - `content.js`：运行时核心。负责查找滚动容器、识别用户消息、注入导航 UI、更新计数器、显示悬浮预览、渲染大纲面板、监听 DOM 变化、处理 SPA 路由切换。
 - `content.css`：侧边栏、大纲面板、悬浮预览和高亮样式。
 - `popup.html`：扩展弹窗设置界面。
@@ -16,7 +16,7 @@
 - `release.zip`：发布产物，不是源码真相，除非明确要求，不要把它当作主要修改对象。
 
 ## 已知实现边界
-- 当前支持的 AI 平台：ChatGPT、Gemini、Claude、DeepSeek、豆包。通过 `PLATFORM_SELECTORS` + `detectPlatform()` 根据 hostname 自动选择对应平台的 DOM 选择器。
+- 当前支持的 AI 平台：ChatGPT、Gemini、Claude 和豆包（更多平台逐步接入中）。通过 `PLATFORM_SELECTORS` + `detectPlatform()` 根据 hostname 自动选择对应平台的 DOM 选择器。
 - 当前设置项为：
   - `enabled`
   - `scrollMode`

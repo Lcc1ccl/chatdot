@@ -22,7 +22,9 @@
     pickBestBindingCandidate,
     resolveActiveIndex,
     resolveAdjacentIndex,
+    resolveScrollStrategy,
     resolveScrollTarget,
+    resolveVisualActiveIndex,
     requiresPostScrollSync,
   } = NAV_LOGIC;
 
@@ -74,19 +76,6 @@
       ],
       textExtract: ['p', 'div[class*="whitespace"]', 'span'],
     },
-    deepseek: {
-      scrollContainer: [
-        'div[class*="chat-message-list"]',
-        'div[class*="conversation"][class*="scroll"]',
-        'main div[class*="overflow-y-auto"]',
-      ],
-      userMessage: [
-        'div[class*="chat-message"][class*="user"]',
-        'div[data-role="user"]',
-        'div[class*="user-message"]',
-      ],
-      textExtract: ['.ds-markdown', 'div[class*="message-content"]', 'p'],
-    },
     doubao: {
       scrollContainer: [
         '[data-testid="message-list"]',
@@ -105,13 +94,13 @@
     if (host.includes('chatgpt.com') || host.includes('chat.openai.com')) return 'chatgpt';
     if (host.includes('gemini.google.com')) return 'gemini';
     if (host.includes('claude.ai')) return 'claude';
-    if (host.includes('chat.deepseek.com') || host.includes('deepseek.com')) return 'deepseek';
     if (host.includes('doubao.com')) return 'doubao';
     return 'chatgpt';
   }
 
   const currentPlatform = detectPlatform();
   const CURRENT_SELECTORS = PLATFORM_SELECTORS[currentPlatform] || PLATFORM_SELECTORS.chatgpt;
+  const scrollStrategy = resolveScrollStrategy(currentPlatform);
 
   function applyThemeMode(mode) {
     if (!mode || mode === 'system') {
@@ -368,6 +357,7 @@
       this.activeIndex = -1;
       this.safeOffset = DEFAULT_SAFE_OFFSET;
       this.bottomEpsilon = DEFAULT_BOTTOM_EPSILON;
+      this.scrollStrategy = scrollStrategy;
       this.lastUrl = location.href;
       this.boundUrl = '';
     }
@@ -961,12 +951,35 @@
         return;
       }
 
+      if (this.scrollStrategy === 'element') {
+        this.updateVisualActiveIndex();
+        return;
+      }
+
       const anchorTops = this.snapshot.map((item) => item.top);
       this.activeIndex = resolveActiveIndex(anchorTops, {
         scrollTop: this.scrollContainer.scrollTop,
         maxScrollTop: this.getMaxScrollTop(),
         safeOffset: this.safeOffset,
         bottomEpsilon: this.bottomEpsilon,
+      });
+    }
+
+    updateVisualActiveIndex() {
+      const containerRect = this.scrollContainer.getBoundingClientRect();
+      const anchorRects = this.snapshot.map((item) => {
+        const rect = item.el.getBoundingClientRect();
+        return {
+          top: rect.top,
+          bottom: rect.bottom,
+        };
+      });
+
+      this.activeIndex = resolveVisualActiveIndex(anchorRects, {
+        containerTop: containerRect.top,
+        containerBottom: containerRect.bottom,
+        safeOffset: this.safeOffset,
+        currentIndex: this.activeIndex,
       });
     }
 
@@ -1131,6 +1144,11 @@
         return;
       }
 
+      if (this.scrollStrategy === 'element' && this.snapshot.length > 0) {
+        this.scrollToIndex(0);
+        return;
+      }
+
       this.activeIndex = this.snapshot.length > 0 ? 0 : -1;
       this.syncCounter();
       this.syncOutlineActiveState();
@@ -1140,6 +1158,11 @@
 
     scrollToBottom() {
       if (!this.scrollContainer) {
+        return;
+      }
+
+      if (this.scrollStrategy === 'element' && this.snapshot.length > 0) {
+        this.scrollToIndex(this.snapshot.length - 1);
         return;
       }
 
@@ -1194,9 +1217,39 @@
       this.activeIndex = index;
       this.syncCounter();
       this.syncOutlineActiveState();
-      this.scrollContainer.scrollTo({ top, behavior: SETTINGS.scrollMode });
+      if (this.scrollStrategy === 'element') {
+        this.scrollElementIntoView(target.el);
+      } else {
+        this.scrollContainer.scrollTo({ top, behavior: SETTINGS.scrollMode });
+      }
       this.syncAfterProgrammaticScroll();
       this.highlightMessage(target.el);
+    }
+
+    scrollElementIntoView(el) {
+      if (!el || typeof el.scrollIntoView !== 'function') {
+        return;
+      }
+
+      const previousScrollMarginTop = el.style.scrollMarginTop;
+      el.style.scrollMarginTop = `${this.safeOffset}px`;
+      el.scrollIntoView({
+        block: 'start',
+        inline: 'nearest',
+        behavior: SETTINGS.scrollMode,
+      });
+
+      window.setTimeout(() => {
+        if (!el.isConnected) {
+          return;
+        }
+
+        if (previousScrollMarginTop) {
+          el.style.scrollMarginTop = previousScrollMarginTop;
+        } else {
+          el.style.removeProperty('scroll-margin-top');
+        }
+      }, SETTINGS.scrollMode === 'smooth' ? 700 : 0);
     }
 
     highlightMessage(el) {

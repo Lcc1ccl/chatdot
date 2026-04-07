@@ -94,6 +94,54 @@
     return scrollMode === 'instant';
   }
 
+  function resolveScrollStrategy(platform) {
+    return platform === 'doubao' ? 'element' : 'container';
+  }
+
+  function resolveVisualActiveIndex(anchorRects, options = {}) {
+    if (!Array.isArray(anchorRects) || anchorRects.length === 0) {
+      return -1;
+    }
+
+    const safeOffset = options.safeOffset ?? DEFAULT_SAFE_OFFSET;
+    const containerTop = options.containerTop ?? 0;
+    const containerBottom = options.containerBottom ?? Infinity;
+    const threshold = containerTop + safeOffset;
+    let bestIndex = -1;
+    let bestDistance = Infinity;
+
+    for (let i = 0; i < anchorRects.length; i++) {
+      const rect = anchorRects[i] || {};
+      const top = Number(rect.top);
+      const bottom = Number(rect.bottom);
+
+      if (!Number.isFinite(top) || !Number.isFinite(bottom)) {
+        continue;
+      }
+
+      if (bottom < containerTop || top > containerBottom) {
+        continue;
+      }
+
+      const distance = Math.abs(top - threshold);
+      if (distance < bestDistance) {
+        bestIndex = i;
+        bestDistance = distance;
+      }
+    }
+
+    if (bestIndex >= 0) {
+      return bestIndex;
+    }
+
+    const currentIndex = options.currentIndex;
+    if (Number.isInteger(currentIndex) && currentIndex >= 0 && currentIndex < anchorRects.length) {
+      return currentIndex;
+    }
+
+    return 0;
+  }
+
   function scoreBindingCandidate(candidate = {}) {
     const isConnected = candidate.isConnected !== false;
     const isVisible = Boolean(candidate.isVisible);
@@ -141,7 +189,9 @@
     pickBestBindingCandidate,
     resolveActiveIndex,
     resolveAdjacentIndex,
+    resolveScrollStrategy,
     resolveScrollTarget,
+    resolveVisualActiveIndex,
     requiresPostScrollSync,
     scoreBindingCandidate,
   };

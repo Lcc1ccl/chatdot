@@ -34,7 +34,7 @@ run('getChangelogEntries falls back to English for Japanese and Korean', () => {
 run('getChangelogEntries keeps Chinese copy for Chinese UI', () => {
   const entries = getChangelogEntries('zh');
   assert.equal(entries[0].version, 'v1.1.0');
-  assert.equal(entries[0].items[0], '新增 Gemini / Claude / DeepSeek / 豆包平台支持');
+  assert.equal(entries[0].items[0], '新增 Gemini / Claude / 豆包平台支持，更多平台逐步接入中');
 });
 
 run('getTranslations exposes new popup CTA and changelog strings', () => {

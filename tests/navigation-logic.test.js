@@ -4,7 +4,9 @@ const {
   pickBestBindingCandidate,
   resolveActiveIndex,
   resolveAdjacentIndex,
+  resolveScrollStrategy,
   resolveScrollTarget,
+  resolveVisualActiveIndex,
   requiresPostScrollSync,
 } = require('../navigation-logic.js');
 
@@ -62,6 +64,43 @@ run('resolveScrollTarget keeps a safe distance from the top edge', () => {
 run('requiresPostScrollSync adds a follow-up sync for instant jumps only', () => {
   assert.equal(requiresPostScrollSync('instant'), true);
   assert.equal(requiresPostScrollSync('smooth'), false);
+});
+
+run('resolveScrollStrategy uses element scrolling only for reversed Doubao lists', () => {
+  assert.equal(resolveScrollStrategy('doubao'), 'element');
+  assert.equal(resolveScrollStrategy('chatgpt'), 'container');
+  assert.equal(resolveScrollStrategy('gemini'), 'container');
+  assert.equal(resolveScrollStrategy('claude'), 'container');
+});
+
+run('resolveVisualActiveIndex picks the message closest to the safe line without scrollTop', () => {
+  const index = resolveVisualActiveIndex([
+    { top: -820, bottom: -740 },
+    { top: -360, bottom: -280 },
+    { top: 88, bottom: 168 },
+    { top: 520, bottom: 600 },
+  ], {
+    containerTop: 0,
+    containerBottom: 640,
+    safeOffset: 88,
+    currentIndex: 3,
+  });
+
+  assert.equal(index, 2);
+});
+
+run('resolveVisualActiveIndex keeps the current item when no anchors are visible', () => {
+  const index = resolveVisualActiveIndex([
+    { top: -820, bottom: -740 },
+    { top: 880, bottom: 960 },
+  ], {
+    containerTop: 0,
+    containerBottom: 640,
+    safeOffset: 88,
+    currentIndex: 1,
+  });
+
+  assert.equal(index, 1);
 });
 
 run('pickBestBindingCandidate prefers the visible in-viewport container', () => {

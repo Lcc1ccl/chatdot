@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "ChatDot",
+  "name": "ChatDot - AI 对话导航",
   "version": "1.1.0",
-  "description": "在 AI 对话页面(ChatGPT/Gemini/Claude/DeepSeek/豆包)提供浮动消息导航，快速定位历史提问与消息大纲",
+  "description": "为 ChatGPT、Gemini、Claude 和豆包添加右侧导航栏与消息大纲，快速定位历史提问并预览上下文。",
   "permissions": ["storage"],
   "content_scripts": [
     {
@@ -11,7 +11,6 @@
         "https://chat.openai.com/*",
         "https://gemini.google.com/*",
         "https://claude.ai/*",
-        "https://chat.deepseek.com/*",
         "https://www.doubao.com/*"
       ],
       "js": ["navigation-logic.js", "content.js"],

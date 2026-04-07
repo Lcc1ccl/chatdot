@@ -131,7 +131,7 @@
         version: 'v1.1.0',
         date: '2026-04-07',
         items: [
-          '新增 Gemini / Claude / DeepSeek / 豆包平台支持',
+          '新增 Gemini / Claude / 豆包平台支持，更多平台逐步接入中',
           '新增浅色 / 深色 / 跟随系统主题模式',
           '优化 Popup 结构，补充版本内更新日志入口',
         ],
@@ -158,7 +158,7 @@
         version: 'v1.1.0',
         date: '2026-04-07',
         items: [
-          'Added support for Gemini, Claude, DeepSeek, and Doubao.',
+          'Added support for Gemini, Claude, and Doubao, with more platforms being added over time.',
           'Added Light, Dark, and System theme modes.',
           'Refined the popup layout and added an in-popup changelog entry.',
         ],
