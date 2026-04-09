@@ -42,52 +42,67 @@ function verticalPadding(selector) {
   return nums[0] + nums[2];
 }
 
-function fontLine(fontSize, lineHeight = 1.2) {
-  return fontSize * lineHeight;
+function findMatchingDivClose(startIndex) {
+  assert.notEqual(startIndex, -1, 'container must exist');
+
+  const tokenPattern = /<div\b[^>]*>|<\/div>/g;
+  tokenPattern.lastIndex = startIndex;
+
+  let depth = 0;
+  let match;
+  while ((match = tokenPattern.exec(html))) {
+    if (match[0] === '</div>') {
+      depth -= 1;
+      if (depth === 0) return match.index;
+      continue;
+    }
+
+    depth += 1;
+  }
+
+  throw new Error('container closing div not found');
 }
 
-function estimatePopupHeight() {
-  const headerHeight = verticalPadding('.header') + Math.max(
-    firstPx('.logo', 'width'),
-    firstPx('.icon-btn', 'width')
-  );
+run('popup keeps a bounded body and delegates scrolling to the settings container', () => {
+  assert.equal(declaration('body', 'display'), 'flex');
+  assert.equal(declaration('body', 'flex-direction'), 'column');
+  assert.equal(firstPx('body', 'max-height'), 650);
+  assert.equal(declaration('body', 'overflow-y'), 'hidden');
 
-  const titleLine = fontLine(firstPx('.row-title', 'font-size'));
-  const descLine = fontLine(firstPx('.row-desc', 'font-size'), 1.4);
-  const rowGap = firstPx('.row-info', 'gap');
-  const rowPadding = verticalPadding('.row');
-  const segmentHeight = verticalPadding('.segment') + verticalPadding('.seg-btn') + fontLine(firstPx('.seg-btn', 'font-size'));
+  assert.equal(declaration('.container', 'overflow-y'), 'auto');
+  assert.equal(declaration('.container', 'min-height'), '0');
+  assert.equal(declaration('.container', 'scrollbar-width'), 'none');
+});
 
-  const switchRowHeight = rowPadding + titleLine;
-  const switchRowWithDescHeight = rowPadding + titleLine + rowGap + descLine;
-  const displayModeHeight = rowPadding + titleLine + rowGap + descLine + firstPx('.container', 'gap') + segmentHeight;
-  const scrollModeHeight = rowPadding + titleLine + firstPx('.container', 'gap') + segmentHeight;
+run('popup exposes compact history trimming controls', () => {
+  assert.doesNotMatch(html, /<details class="trim-details"/);
+  assert.match(html, /<select class="select-input" id="trim-keep-turns">/);
+  assert.match(html, /<input type="checkbox" id="toggle-trim-auto">/);
+  assert.match(html, /id="btn-trim-apply"/);
+  assert.match(html, /id="btn-trim-restore"/);
+  assert.match(html, /id="trim-stats"/);
+});
 
-  const groupBorder = 2;
-  const containerHeight = verticalPadding('.container')
-    + firstPx('.container', 'gap') * 2
-    + groupBorder + switchRowHeight + switchRowWithDescHeight * 2
-    + groupBorder + displayModeHeight
-    + groupBorder + scrollModeHeight;
+run('popup no longer exposes a redundant master trim toggle', () => {
+  assert.doesNotMatch(html, /id="toggle-trim-enabled"/);
+});
 
-  const statusHeight = firstPx('.status-bar', 'margin') + verticalPadding('.status-bar') + fontLine(firstPx('.status-bar', 'font-size')) + 2;
+run('popup widens the panel slightly for the denser trim layout', () => {
+  assert.ok(firstPx('body', 'width') > 320);
+});
 
-  const starTitle = fontLine(firstPx('.star-title', 'font-size'), 1.1);
-  const starDescription = fontLine(firstPx('.star-desc', 'font-size'), 1.3) * 2;
-  const starHeight = verticalPadding('.star-btn') + starTitle + firstPx('.star-copy', 'gap') + starDescription;
-  const footerHeight = firstPx('.footer', 'margin-top')
-    + 1
-    + verticalPadding('.footer')
-    + firstPx('.footer', 'gap')
-    + starHeight
-    + firstPx('.icon-link', 'height');
+run('popup keeps status and footer outside the settings scroll container', () => {
+  assert.equal(declaration('html', 'overflow'), 'hidden');
+  assert.equal(declaration('body', 'overflow-y'), 'hidden');
 
-  return headerHeight + containerHeight + statusHeight + footerHeight;
-}
+  const containerOpen = html.indexOf('<div class="container">');
+  const containerClose = findMatchingDivClose(containerOpen);
+  const statusIndex = html.indexOf('<div id="status" class="status-bar active">');
+  const footerIndex = html.indexOf('<div class="footer">');
 
-run('popup default layout stays within a no-scroll Chrome popup budget', () => {
-  assert.ok(
-    estimatePopupHeight() <= 560,
-    `estimated popup height ${Math.ceil(estimatePopupHeight())}px exceeds 560px no-scroll budget`
-  );
+  assert.ok(statusIndex > containerClose, 'status must live outside the settings scroll container');
+  assert.ok(footerIndex > containerClose, 'footer must live outside the settings scroll container');
+  assert.match(html, /id="review-link"/);
+  assert.match(html, /id="version-num"/);
+  assert.match(html, /id="github-link"/);
 });

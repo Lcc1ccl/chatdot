@@ -23,6 +23,60 @@
   "show_outline_desc": {
     "message": "侧边栏显示对话索引"
   },
+  "trim_history": {
+    "message": "丝滑模式"
+  },
+  "trim_history_desc": {
+    "message": "目前仅针对 ChatGPT 生效，减少长对话卡顿"
+  },
+  "trim_keep_turns": {
+    "message": "保留轮数"
+  },
+  "trim_keep_turns_desc": {
+    "message": "设置当前保留展示的轮数"
+  },
+  "trim_auto_apply": {
+    "message": "自动精简"
+  },
+  "trim_auto_apply_desc": {
+    "message": "自动保持会话展示设定的轮数"
+  },
+  "trim_apply": {
+    "message": "手动精简"
+  },
+  "trim_restore": {
+    "message": "恢复显示"
+  },
+  "trim_stats_inactive": {
+    "message": "当前页未精简"
+  },
+  "trim_stats_unsupported": {
+    "message": "当前页面暂不支持会话精简"
+  },
+  "trim_stats_kept": {
+    "message": "当前显示"
+  },
+  "trim_stats_total": {
+    "message": "总计"
+  },
+  "trim_stats_hidden": {
+    "message": "已隐藏"
+  },
+  "trim_turn_unit": {
+    "message": "轮"
+  },
+  "trim_more_settings": {
+    "message": "精简设置"
+  },
+  "trim_more_settings_desc": {
+    "message": "展开后设置保留轮数与自动精简"
+  },
+  "trim_auto_mode_off": {
+    "message": "关闭"
+  },
+  "trim_auto_mode_on": {
+    "message": "开启"
+  },
   "display_mode": {
     "message": "显示模式"
   },

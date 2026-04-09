@@ -1,0 +1,4 @@
+[     324ms] TypeError: Cannot read properties of undefined (reading 'getManifest')
+    at http://127.0.0.1:8765/popup.js:84:39
+    at http://127.0.0.1:8765/popup.js:517:3
+[     615ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://127.0.0.1:8765/favicon.ico:0

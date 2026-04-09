@@ -1,0 +1,65 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - img "ChatDot" [ref=e4]
+    - generic [ref=e5]: ChatDot
+    - generic [ref=e6]:
+      - button [ref=e7] [cursor=pointer]:
+        - img [ref=e8]
+      - generic [ref=e9]:
+        - button [ref=e10] [cursor=pointer]:
+          - img [ref=e11]
+        - generic:
+          - button "✓ 简体中文":
+            - generic: ✓
+            - text: 简体中文
+          - button "English": English
+          - button "日本語": 日本語
+          - button "한국어": 한국어
+  - generic [ref=e14]:
+    - generic [ref=e15]:
+      - generic [ref=e17] [cursor=pointer]:
+        - checkbox [checked]
+      - generic [ref=e20] [cursor=pointer]:
+        - checkbox [checked]
+      - generic [ref=e23] [cursor=pointer]:
+        - checkbox [checked]
+    - generic [ref=e24]:
+      - generic [ref=e27]:
+        - generic [ref=e30]:
+          - combobox "▾" [ref=e31] [cursor=pointer]:
+            - option "1"
+            - option "3"
+            - option "5"
+            - option "10" [selected]
+            - option "15"
+            - option "20"
+            - option "30"
+            - option "50"
+            - option "100"
+          - text: ▾
+        - generic [ref=e34] [cursor=pointer]:
+          - checkbox
+      - generic [ref=e36]:
+        - button [ref=e37] [cursor=pointer]
+        - button [ref=e38] [cursor=pointer]
+    - generic [ref=e42]:
+      - button [ref=e43] [cursor=pointer]
+      - button [ref=e44] [cursor=pointer]
+      - button [ref=e45] [cursor=pointer]
+    - generic [ref=e48]:
+      - button [ref=e49] [cursor=pointer]
+      - button [ref=e50] [cursor=pointer]
+  - generic [ref=e52]:
+    - link [ref=e53] [cursor=pointer]:
+      - /url: https://chromewebstore.google.com/
+      - img [ref=e54]
+    - generic [ref=e56]:
+      - generic [ref=e57]: 1.0.0
+      - link [ref=e58] [cursor=pointer]:
+        - /url: https://github.com/Lcc1ccl/chatdot
+        - img [ref=e59]
+  - generic:
+    - dialog:
+      - generic:
+        - button:
+          - img

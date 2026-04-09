@@ -22,6 +22,7 @@
       --accent-light: rgba(123, 186, 212, 0.08);
       --mint: #8ed4cc;
       --ice: #c8dde8;
+      --trim-hidden: #c7a25f;
       --switch-off: #d8e3ec;
       --switch-on: linear-gradient(135deg, #a8d4e0 0%, #7ecbc5 100%);
       --success: #6dc5a0;
@@ -32,13 +33,19 @@
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
+    html {
+      overflow: hidden;
+    }
+
     body {
-      width: 320px;
-      max-height: 560px;
+      width: 368px;
+      height: 600px;
+      display: flex;
+      flex-direction: column;
       font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: var(--bg);
       color: var(--text-main);
-      font-size: 13px;
+      font-size: 14px;
       -webkit-font-smoothing: antialiased;
       user-select: none;
       overflow-x: hidden;
@@ -47,7 +54,7 @@
 
     /* ---- Header ---- */
     .header {
-      padding: 10px 16px 9px;
+      padding: 9px 14px 8px;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -69,7 +76,7 @@
       width: 100%; height: 100%; object-fit: cover;
     }
     .header-title {
-      font-size: 15px; font-weight: 600; letter-spacing: -0.3px;
+      font-size: 16px; font-weight: 600; letter-spacing: -0.3px;
       color: var(--text-main);
     }
     .header-right {
@@ -137,9 +144,17 @@
 
     /* ---- Main Container ---- */
     .container {
-      padding: 8px 14px;
-      display: flex; flex-direction: column; gap: 8px;
+      padding: 8px 12px 6px;
+      display: flex; flex-direction: column;
+      gap: 6px;
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
     }
+    .container::-webkit-scrollbar { width: 0; height: 0; }
 
     /* ---- Group Card ---- */
     .group {
@@ -151,7 +166,7 @@
     }
     .row {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 9px 14px;
+      padding: 6px 14px;
       cursor: pointer;
       transition: background 0.15s;
     }
@@ -160,22 +175,31 @@
       border-bottom: 1px solid var(--border-light);
     }
     .row-info {
-      display: flex; flex-direction: column; gap: 2px;
+      display: flex; flex-direction: column;
+      gap: 1px;
+      flex: 1;
+      min-width: 0;
     }
     .row-title {
-      font-size: 12px; font-weight: 500; color: var(--text-main);
+      font-size: 13px; font-weight: 600; color: var(--text-main);
     }
     .row-desc {
       font-size: 10px; color: var(--text-muted);
       line-height: 1.3;
     }
+    .row-static {
+      cursor: default;
+    }
+    .row-static:hover {
+      background: transparent;
+    }
 
     /* ---- Pill Toggle ---- */
     .toggle {
       position: relative;
-      width: 38px; height: 20px;
+      width: 40px; height: 22px;
       background: var(--switch-off);
-      border-radius: 10px;
+      border-radius: 11px;
       flex-shrink: 0; margin-left: 12px;
       transition: all 0.3s;
       cursor: pointer;
@@ -185,7 +209,7 @@
       content: '';
       position: absolute;
       top: 2px; left: 2px;
-      width: 16px; height: 16px;
+      width: 18px; height: 18px;
       background: #fff;
       border-radius: 50%;
       transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -204,15 +228,15 @@
       display: flex;
       background: var(--switch-off);
       padding: 3px;
-      border-radius: 9px;
+      border-radius: 10px;
     }
     .seg-btn {
       flex: 1;
-      padding: 5px 10px;
-      font-size: 11px; font-weight: 500;
+      padding: 7px 10px;
+      font-size: 11px; font-weight: 600;
       color: var(--text-muted);
       background: transparent; border: none;
-      border-radius: 7px;
+      border-radius: 8px;
       cursor: pointer;
       transition: all 0.2s;
       font-family: 'DM Sans', sans-serif;
@@ -225,19 +249,139 @@
       font-weight: 600;
     }
 
+    /* ---- Trim Controls ---- */
+    .select-wrap {
+      position: relative;
+      flex-shrink: 0;
+      min-width: 108px;
+    }
+    .select-wrap::after {
+      content: '▾';
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 11px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+    .select-input {
+      width: 100%;
+      padding: 7px 10px;
+      border-radius: 9px;
+      border: 1px solid var(--card-border);
+      background: rgba(244, 247, 250, 0.9);
+      color: var(--text-main);
+      font: inherit;
+      padding-right: 28px;
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+    }
+    .select-input:focus {
+      outline: none;
+      border-color: rgba(123, 186, 212, 0.7);
+      box-shadow: 0 0 0 3px var(--accent-light);
+    }
+    .trim-group.is-disabled {
+      opacity: 0.55;
+    }
+    .trim-head {
+      align-items: flex-start;
+    }
+    .trim-panel {
+      padding: 2px 14px 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .trim-inline-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      min-width: 0;
+      padding: 3px 0 6px;
+    }
+    .trim-inline-item + .trim-inline-item {
+      border-top: 1px solid var(--border-light);
+      padding-top: 6px;
+    }
+    .trim-inline-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      min-width: 0;
+      flex: 1;
+    }
+    .trim-inline-item .toggle {
+      margin-left: 0;
+    }
+    .trim-status-row {
+      align-items: center;
+      gap: 10px;
+    }
+    .trim-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .trim-btn {
+      min-width: 80px;
+      padding: 6px 9px;
+      border-radius: 9px;
+      border: 1px solid transparent;
+      background: var(--accent-light);
+      color: var(--accent-deep);
+      font: inherit;
+      font-size: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .trim-btn:hover:not(:disabled) {
+      background: rgba(123, 186, 212, 0.16);
+      border-color: var(--card-border);
+    }
+    .trim-btn.secondary {
+      background: rgba(138, 155, 176, 0.08);
+      color: var(--text-muted);
+    }
+    .trim-btn:disabled,
+    .select-input:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .trim-stats {
+      margin-top: 0;
+      line-height: 1.4;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .trim-stats-line {
+      display: block;
+    }
+    .trim-stats-hidden {
+      color: var(--trim-hidden);
+      font-weight: 500;
+    }
+
     /* ---- Status Indicator ---- */
     .status-bar {
-      margin: 2px 14px 0;
-      padding: 7px;
-      border-radius: 10px;
-      font-size: 10px; font-weight: 600;
+      margin: 0;
+      padding: 6px 10px;
+      border-radius: 12px;
+      font-size: 11px; font-weight: 600;
       text-align: center;
       border: 1px solid transparent;
+      box-shadow: 0 2px 6px rgba(160, 195, 220, 0.1);
       display: flex; align-items: center; justify-content: center; gap: 6px;
       transition: all 0.3s ease;
+      flex-shrink: 0;
     }
     .status-bar::before {
-      content: ''; display: block; width: 6px; height: 6px;
+      content: ''; display: block; width: 7px; height: 7px;
       border-radius: 50%;
       transition: all 0.3s ease;
     }
@@ -380,10 +524,11 @@
 
     /* ---- Footer ---- */
     .footer {
-      padding: 8px 14px 10px;
-      display: flex; flex-direction: column; gap: 6px;
+      padding: 5px 0 6px;
+      display: flex; flex-direction: column; gap: 5px;
       border-top: 1px solid var(--border-light);
-      margin-top: 2px;
+      margin-top: 0px;
+      flex-shrink: 0;
     }
     .footer-bottom {
       display: flex; align-items: center; justify-content: space-between;
@@ -400,45 +545,46 @@
     }
     .star-btn {
       width: 100%;
-      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-      padding: 8px 10px; border-radius: 12px;
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 8px;
+      padding: 8px 12px; border-radius: 13px;
       background: linear-gradient(135deg, #a8d4e0 0%, #7ecbc5 100%);
       color: #fff; text-decoration: none;
-      font-weight: 600; font-size: 12px;
-      transition: all 0.25s;
+      font-weight: 600; font-size: 13px;
+      transition: box-shadow 0.25s, filter 0.25s;
       border: none;
       box-shadow: 0 2px 10px rgba(126, 203, 197, 0.3);
       font-family: 'DM Sans', sans-serif;
     }
     .star-btn:hover {
-      transform: translateY(-1px);
       box-shadow: 0 4px 16px rgba(126, 203, 197, 0.4);
       filter: brightness(1.05);
     }
-    .star-btn:active {
-      transform: translateY(0);
-    }
-    .star-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+    .star-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
     .star-copy {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
       gap: 1px;
+      min-width: 0;
     }
     .star-title {
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 600;
-      line-height: 1.1;
+      line-height: 1.2;
     }
     .star-desc {
       font-size: 10px;
       font-weight: 500;
       color: rgba(255, 255, 255, 0.86);
       line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .icon-link {
-      width: 28px;
-      height: 28px;
+      width: 26px;
+      height: 26px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -534,7 +680,55 @@
     </div>
 
     <div class="group">
-      <div class="row" style="flex-direction: column; align-items: stretch; gap: 10px; cursor: default;">
+      <div class="row row-static trim-head">
+        <div class="row-info">
+          <div class="row-title" data-i18n="trim_history"></div>
+          <div class="row-desc" data-i18n="trim_history_desc"></div>
+        </div>
+      </div>
+      <div class="trim-panel" id="trim-group">
+        <label class="trim-inline-item">
+          <div class="trim-inline-copy">
+            <div class="row-title" data-i18n="trim_keep_turns"></div>
+            <div class="row-desc" data-i18n="trim_keep_turns_desc"></div>
+          </div>
+          <span class="select-wrap">
+            <select class="select-input" id="trim-keep-turns">
+              <option value="1">1</option>
+              <option value="3">3</option>
+              <option value="5">5</option>
+              <option value="10" selected>10</option>
+              <option value="15">15</option>
+              <option value="20">20</option>
+              <option value="30">30</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </span>
+        </label>
+        <label class="trim-inline-item">
+          <div class="trim-inline-copy">
+            <div class="row-title" data-i18n="trim_auto_apply"></div>
+            <div class="row-desc" data-i18n="trim_auto_apply_desc"></div>
+          </div>
+          <div class="toggle">
+            <input type="checkbox" id="toggle-trim-auto">
+          </div>
+        </label>
+      </div>
+      <div class="row row-static trim-status-row">
+        <div class="row-info">
+          <div class="row-desc trim-stats" id="trim-stats" data-i18n="trim_stats_inactive"></div>
+        </div>
+        <div class="trim-actions">
+          <button class="trim-btn" id="btn-trim-apply" type="button" data-i18n="trim_apply"></button>
+          <button class="trim-btn secondary" id="btn-trim-restore" type="button" data-i18n="trim_restore"></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="row" style="flex-direction: column; align-items: stretch; gap: 12px; cursor: default;">
         <div class="row-info">
           <div class="row-title" data-i18n="display_mode"></div>
           <div class="row-desc" data-i18n="display_mode_desc"></div>
@@ -548,7 +742,7 @@
     </div>
 
     <div class="group">
-      <div class="row" style="flex-direction: column; align-items: stretch; gap: 10px; cursor: default;">
+      <div class="row" style="flex-direction: column; align-items: stretch; gap: 12px; cursor: default;">
         <div class="row-info">
           <div class="row-title" data-i18n="scroll_mode"></div>
         </div>
@@ -559,28 +753,28 @@
       </div>
     </div>
 
-  </div>
-
-  <div id="status" class="status-bar active">
-    <span data-i18n="status_active"></span>
-  </div>
-
-  <div class="footer">
-    <a id="review-link" href="https://chromewebstore.google.com/" target="_blank" rel="noreferrer" class="star-btn">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
-      <span class="star-copy">
-        <span class="star-title" data-i18n="review_support"></span>
-        <span class="star-desc" data-i18n="review_support_desc"></span>
-      </span>
-    </a>
-    <div class="footer-bottom">
-      <div class="version">
-        <span data-i18n="version"></span> <span id="version-num">1.0.0</span>
-      </div>
-      <a id="github-link" href="https://github.com/Lcc1ccl/chatdot" target="_blank" rel="noreferrer" class="icon-link" data-i18n-title="github_repo" data-i18n-aria-label="github_repo">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.418 22 12c0-5.523-4.477-10-10-10z"></path></svg>
-      </a>
+    <div id="status" class="status-bar active">
+      <span data-i18n="status_active"></span>
     </div>
+
+    <div class="footer">
+      <a id="review-link" href="https://chromewebstore.google.com/" target="_blank" rel="noreferrer" class="star-btn">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+        <span class="star-copy">
+          <span class="star-title" data-i18n="review_support"></span>
+          <span class="star-desc" data-i18n="review_support_desc"></span>
+        </span>
+      </a>
+      <div class="footer-bottom">
+        <div class="version">
+          <span data-i18n="version"></span> <span id="version-num">1.2.5</span>
+        </div>
+        <a id="github-link" href="https://github.com/Lcc1ccl/chatdot" target="_blank" rel="noreferrer" class="icon-link" data-i18n-title="github_repo" data-i18n-aria-label="github_repo">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.418 22 12c0-5.523-4.477-10-10-10z"></path></svg>
+        </a>
+      </div>
+    </div>
+
   </div>
 
   <div id="changelog-modal" class="modal-backdrop" aria-hidden="true">

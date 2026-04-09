@@ -23,6 +23,60 @@
   "show_outline_desc": {
     "message": "대화 색인 표시"
   },
+  "trim_history": {
+    "message": "부드러운 모드"
+  },
+  "trim_history_desc": {
+    "message": "현재는 ChatGPT에만 적용되며 긴 대화의 버벅임을 줄입니다"
+  },
+  "trim_keep_turns": {
+    "message": "유지할 개수"
+  },
+  "trim_keep_turns_desc": {
+    "message": "현재 화면에 남겨둘 개수를 설정합니다"
+  },
+  "trim_auto_apply": {
+    "message": "자동 축약"
+  },
+  "trim_auto_apply_desc": {
+    "message": "설정한 개수만 보이도록 대화를 자동으로 유지합니다"
+  },
+  "trim_apply": {
+    "message": "수동 축약"
+  },
+  "trim_restore": {
+    "message": "다시 표시"
+  },
+  "trim_stats_inactive": {
+    "message": "이 페이지는 아직 축약되지 않았습니다"
+  },
+  "trim_stats_unsupported": {
+    "message": "이 페이지에서는 대화 축약을 아직 지원하지 않습니다"
+  },
+  "trim_stats_kept": {
+    "message": "현재 표시"
+  },
+  "trim_stats_total": {
+    "message": "전체"
+  },
+  "trim_stats_hidden": {
+    "message": "숨김"
+  },
+  "trim_turn_unit": {
+    "message": "개"
+  },
+  "trim_more_settings": {
+    "message": "축약 설정"
+  },
+  "trim_more_settings_desc": {
+    "message": "펼쳐서 유지 개수와 자동 축약을 설정합니다"
+  },
+  "trim_auto_mode_off": {
+    "message": "끔"
+  },
+  "trim_auto_mode_on": {
+    "message": "켬"
+  },
   "display_mode": {
     "message": "표시 모드"
   },

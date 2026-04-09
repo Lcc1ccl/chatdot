@@ -23,6 +23,60 @@
   "show_outline_desc": {
     "message": "Show conversation index"
   },
+  "trim_history": {
+    "message": "Smooth Mode"
+  },
+  "trim_history_desc": {
+    "message": "Currently for ChatGPT only, reducing lag in long conversations"
+  },
+  "trim_keep_turns": {
+    "message": "Turns to Keep"
+  },
+  "trim_keep_turns_desc": {
+    "message": "Choose how many turns stay visible"
+  },
+  "trim_auto_apply": {
+    "message": "Auto Trim"
+  },
+  "trim_auto_apply_desc": {
+    "message": "Automatically keep the conversation at the selected number of visible turns"
+  },
+  "trim_apply": {
+    "message": "Manual Trim"
+  },
+  "trim_restore": {
+    "message": "Restore"
+  },
+  "trim_stats_inactive": {
+    "message": "This page is not trimmed"
+  },
+  "trim_stats_unsupported": {
+    "message": "Conversation trim is not supported on this page yet"
+  },
+  "trim_stats_kept": {
+    "message": "Visible"
+  },
+  "trim_stats_total": {
+    "message": "Total"
+  },
+  "trim_stats_hidden": {
+    "message": "Hidden"
+  },
+  "trim_turn_unit": {
+    "message": "turns"
+  },
+  "trim_more_settings": {
+    "message": "Trim Settings"
+  },
+  "trim_more_settings_desc": {
+    "message": "Expand to set turns to keep and auto trim"
+  },
+  "trim_auto_mode_off": {
+    "message": "Off"
+  },
+  "trim_auto_mode_on": {
+    "message": "On"
+  },
   "display_mode": {
     "message": "Display Mode"
   },

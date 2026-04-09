@@ -14,9 +14,38 @@
     showPreview: true,
     showOutline: true,
     themeMode: 'system',
+    trimEnabled: false,
+    trimKeepTurns: 10,
+    trimAutoApply: false,
   };
   const getStoreReviewUrl = popupLogic.getStoreReviewUrl || (() => 'https://chromewebstore.google.com/');
   const getChangelogEntries = popupLogic.getChangelogEntries || (() => []);
+  const resolveTrimSettingsChange = popupLogic.resolveTrimSettingsChange || ((current = {}, changes = {}) => {
+    const next = {
+      trimEnabled: Boolean(current.trimAutoApply),
+      trimKeepTurns: current.trimKeepTurns,
+      trimAutoApply: Boolean(current.trimAutoApply),
+      ...changes,
+    };
+
+    next.trimAutoApply = Boolean(next.trimAutoApply);
+    next.trimEnabled = next.trimAutoApply;
+
+    return next;
+  });
+  const getTrimControlState = popupLogic.getTrimControlState || (stats => {
+    const unavailable = !stats || stats.supported === false;
+    const canRestore = Boolean(stats?.applied || stats?.hidden > 0);
+
+    return {
+      unavailable,
+      keepDisabled: false,
+      autoDisabled: unavailable,
+      applyDisabled: unavailable,
+      restoreDisabled: unavailable || !canRestore,
+    };
+  });
+  const isTrimStatsUnavailable = popupLogic.isTrimStatsUnavailable || (stats => !stats || stats.supported === false);
   const GITHUB_REPO_URL = popupLogic.GITHUB_REPO_URL || 'https://github.com/Lcc1ccl/chatdot';
 
   // ============================================
@@ -27,10 +56,16 @@
   const toggleEnabled = $('toggle-enabled');
   const togglePreview = $('toggle-preview');
   const toggleOutline = $('toggle-outline');
+  const trimGroupEl = $('trim-group');
+  const trimKeepTurnsEl = $('trim-keep-turns');
+  const trimAutoApplyEl = $('toggle-trim-auto');
   const scrollModeEl  = $('scroll-mode');
   const themeModeEl   = $('theme-mode');
   const btnLang       = $('btn-lang');
   const btnChangelog  = $('btn-changelog');
+  const btnTrimApply  = $('btn-trim-apply');
+  const btnTrimRestore = $('btn-trim-restore');
+  const trimStatsEl   = $('trim-stats');
   const langPopup     = $('lang-popup');
   const statusEl      = $('status');
   const reviewLinkEl  = $('review-link');
@@ -42,6 +77,8 @@
 
   let currentLang = 'zh';
   let currentTranslations = {};
+  let latestTrimStats = null;
+  let currentSettings = { ...DEFAULTS };
 
   // 自动获取版本号
   const manifestData = chrome.runtime.getManifest();
@@ -58,10 +95,23 @@
   });
 
   async function applySettings(data) {
+    const trimSettings = resolveTrimSettingsChange(currentSettings, {
+      trimKeepTurns: normalizeTrimKeepTurns(data.trimKeepTurns),
+      trimAutoApply: data.trimAutoApply,
+    });
+
+    currentSettings = {
+      ...currentSettings,
+      ...data,
+      ...trimSettings,
+    };
+
     toggleEnabled.checked = data.enabled;
     togglePreview.checked = data.showPreview;
     toggleOutline.checked = data.showOutline;
-    currentLang           = data.language || 'zh';
+    trimKeepTurnsEl.value = ensureTrimKeepTurnsOption(currentSettings.trimKeepTurns);
+    trimAutoApplyEl.checked = Boolean(currentSettings.trimAutoApply);
+    currentLang = data.language || 'zh';
 
     scrollModeEl.querySelectorAll('.seg-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.value === data.scrollMode);
@@ -75,6 +125,7 @@
     updateStatus(data.enabled);
     syncExternalLinks();
     renderChangelog();
+    await refreshTrimStats();
   }
 
   async function resolveTranslations(lang) {
@@ -105,18 +156,120 @@
     return currentTranslations[key] || i18nApi.getBrowserMessage?.(key) || '';
   }
 
+  function normalizeTrimKeepTurns(value) {
+    const parsed = Number.parseInt(value, 10);
+    if (!Number.isFinite(parsed)) {
+      return DEFAULTS.trimKeepTurns || 10;
+    }
+
+    return Math.min(100, Math.max(1, parsed));
+  }
+
+  function ensureTrimKeepTurnsOption(value) {
+    const normalizedValue = String(normalizeTrimKeepTurns(value));
+    if (trimKeepTurnsEl.querySelector(`option[value="${normalizedValue}"]`)) {
+      return normalizedValue;
+    }
+
+    const option = document.createElement('option');
+    option.value = normalizedValue;
+    option.textContent = normalizedValue;
+    trimKeepTurnsEl.appendChild(option);
+    return normalizedValue;
+  }
+
   // ============================================
   // 保存 & 通知 content script
   // ============================================
   function save(changes) {
     chrome.storage.local.set(changes);
 
-    // 通知当前标签页
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs[0]?.id) {
-        chrome.tabs.sendMessage(tabs[0].id, { type: 'settingsChanged', ...changes }).catch(() => {});
-      }
+    return sendActiveTabMessage({ type: 'settingsChanged', ...changes });
+  }
+
+  function getActiveTab() {
+    return new Promise((resolve) => {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        resolve(tabs[0] || null);
+      });
     });
+  }
+
+  async function sendActiveTabMessage(message) {
+    const tab = await getActiveTab();
+    if (!tab?.id) {
+      return null;
+    }
+
+    try {
+      return await chrome.tabs.sendMessage(tab.id, message);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function formatTrimStats(stats) {
+    if (isTrimStatsUnavailable(stats)) {
+      return {
+        split: false,
+        primary: translate('trim_stats_unsupported'),
+        hidden: '',
+      };
+    }
+
+    if (!Number.isFinite(stats.total) || stats.total <= 0) {
+      return {
+        split: false,
+        primary: translate('trim_stats_inactive'),
+        hidden: '',
+      };
+    }
+
+    const unit = translate('trim_turn_unit');
+    return {
+      split: true,
+      primary: `${translate('trim_stats_total')} ${stats.total}${unit} / ${translate('trim_stats_kept')} ${stats.visible}${unit}`,
+      hidden: `${translate('trim_stats_hidden')} ${stats.hidden}${unit}`,
+    };
+  }
+
+  function updateTrimControls() {
+    const state = getTrimControlState(latestTrimStats);
+    trimKeepTurnsEl.disabled = state.keepDisabled;
+    trimAutoApplyEl.disabled = state.autoDisabled;
+    btnTrimApply.disabled = state.applyDisabled;
+    btnTrimRestore.disabled = state.restoreDisabled;
+    if (trimGroupEl) {
+      trimGroupEl.classList.toggle('is-disabled', state.unavailable && state.keepDisabled);
+    }
+  }
+
+  function renderTrimStats(stats) {
+    latestTrimStats = stats;
+    const formatted = formatTrimStats(stats);
+    trimStatsEl.innerHTML = '';
+    if (formatted.split) {
+      trimStatsEl.classList.add('trim-stats-split');
+
+      const primaryLine = document.createElement('span');
+      primaryLine.className = 'trim-stats-line';
+      primaryLine.textContent = formatted.primary;
+
+      const hiddenLine = document.createElement('span');
+      hiddenLine.className = 'trim-stats-line trim-stats-hidden';
+      hiddenLine.textContent = formatted.hidden;
+
+      trimStatsEl.appendChild(primaryLine);
+      trimStatsEl.appendChild(hiddenLine);
+    } else {
+      trimStatsEl.classList.remove('trim-stats-split');
+      trimStatsEl.textContent = formatted.primary;
+    }
+    updateTrimControls();
+  }
+
+  async function refreshTrimStats() {
+    renderTrimStats(await sendActiveTabMessage({ type: 'trimGetStats' }));
   }
 
   // ============================================
@@ -140,6 +293,47 @@
   // ============================================
   toggleOutline.addEventListener('change', () => {
     save({ showOutline: toggleOutline.checked });
+  });
+
+  trimAutoApplyEl.addEventListener('change', async () => {
+    const nextTrimSettings = resolveTrimSettingsChange(currentSettings, {
+      trimAutoApply: trimAutoApplyEl.checked,
+    });
+    currentSettings = {
+      ...currentSettings,
+      ...nextTrimSettings,
+    };
+    trimAutoApplyEl.checked = Boolean(nextTrimSettings.trimAutoApply);
+    await save(nextTrimSettings);
+    await refreshTrimStats();
+  });
+
+  trimKeepTurnsEl.addEventListener('change', async () => {
+    const trimKeepTurns = normalizeTrimKeepTurns(trimKeepTurnsEl.value);
+    const nextTrimSettings = resolveTrimSettingsChange(currentSettings, { trimKeepTurns });
+    currentSettings = {
+      ...currentSettings,
+      ...nextTrimSettings,
+    };
+    trimKeepTurnsEl.value = ensureTrimKeepTurnsOption(nextTrimSettings.trimKeepTurns);
+    await save(nextTrimSettings);
+    await refreshTrimStats();
+  });
+
+  btnTrimApply.addEventListener('click', async () => {
+    const trimKeepTurns = normalizeTrimKeepTurns(trimKeepTurnsEl.value);
+    const nextTrimSettings = resolveTrimSettingsChange(currentSettings, { trimKeepTurns });
+    currentSettings = {
+      ...currentSettings,
+      ...nextTrimSettings,
+    };
+    trimKeepTurnsEl.value = ensureTrimKeepTurnsOption(nextTrimSettings.trimKeepTurns);
+    await save(nextTrimSettings);
+    renderTrimStats(await sendActiveTabMessage({ type: 'trimApply' }));
+  });
+
+  btnTrimRestore.addEventListener('click', async () => {
+    renderTrimStats(await sendActiveTabMessage({ type: 'trimRestore' }));
   });
 
   // ============================================
@@ -251,6 +445,7 @@
       const value = translate(key);
       if (value) btn.textContent = value;
     });
+    renderTrimStats(latestTrimStats);
   }
 
   function updateStatus(enabled) {

@@ -23,6 +23,9 @@
     pickBestBindingCandidate,
     resolveActiveIndex,
     resolveAdjacentIndex,
+    resolveTrimWindow,
+    resolveTrimSignature,
+    shouldApplyTrim,
     resolveScrollStrategy,
     resolveScrollTarget,
     resolveVisualActiveIndex,
@@ -36,8 +39,16 @@
     showOutline: true,
     language: 'zh',
     themeMode: 'system',
+    trimEnabled: false,
+    trimKeepTurns: 10,
+    trimAutoApply: false,
   };
   let messages = {};
+  const TRIMMED_CLASS = 'chatdot-trimmed';
+  const CHATGPT_TURN_SELECTORS = [
+    'article[data-testid^="conversation-turn-"]',
+    'article',
+  ];
 
   const PLATFORM_SELECTORS = {
     chatgpt: {
@@ -170,6 +181,7 @@
     if (chrome?.storage?.local) {
       chrome.storage.local.get(SETTINGS, async (data) => {
         Object.assign(SETTINGS, data);
+        SETTINGS.trimEnabled = Boolean(SETTINGS.trimAutoApply);
         applyThemeMode(SETTINGS.themeMode);
         await syncMessages(SETTINGS.language);
         if (callback) callback();
@@ -240,8 +252,13 @@
     return null;
   }
 
-  function findUserMessages(root = document) {
-    return queryAll(CURRENT_SELECTORS.userMessage, root);
+  function findUserMessages(root = document, options = {}) {
+    const nodes = queryAll(CURRENT_SELECTORS.userMessage, root);
+    if (options.includeTrimmed) {
+      return nodes;
+    }
+
+    return nodes.filter((node) => !node.closest(`.${TRIMMED_CLASS}`));
   }
 
   function extractMessageText(msgEl, maxLen = 80) {
@@ -254,6 +271,29 @@
     const raw = (textEl || msgEl).textContent || '';
     const text = raw.replace(/\s+/g, ' ').trim();
     return text.length > maxLen ? `${text.slice(0, maxLen)}...` : text;
+  }
+
+  function getConversationTurnElement(messageEl) {
+    if (!(messageEl instanceof Element) || currentPlatform !== 'chatgpt') {
+      return messageEl;
+    }
+
+    for (const selector of CHATGPT_TURN_SELECTORS) {
+      const turnEl = messageEl.closest(selector);
+      if (turnEl) {
+        return turnEl;
+      }
+    }
+
+    return messageEl;
+  }
+
+  function findConversationTurns(root = document) {
+    if (currentPlatform !== 'chatgpt') {
+      return [];
+    }
+
+    return queryAll(CHATGPT_TURN_SELECTORS, root);
   }
 
   function isPluginElement(node) {
@@ -414,6 +454,18 @@
       this.scrollStrategy = scrollStrategy;
       this.lastUrl = location.href;
       this.boundUrl = '';
+      this.trimStats = {
+        supported: currentPlatform === 'chatgpt',
+        enabled: SETTINGS.trimEnabled,
+        keep: Math.max(1, Number.parseInt(SETTINGS.trimKeepTurns, 10) || 10),
+        total: 0,
+        visible: 0,
+        hidden: 0,
+        applied: false,
+      };
+      this.manualTrimApplied = false;
+      this.trimSuppressed = false;
+      this.trimAppliedSignature = resolveTrimSignature(SETTINGS);
     }
 
     init() {
@@ -865,15 +917,22 @@
         || !this.scrollContainer.isConnected
         || this.scrollContainer !== scrollContainer
         || this.boundUrl !== location.href;
+      const conversationChanged = Boolean(this.boundUrl) && this.boundUrl !== location.href;
 
       if (containerChanged) {
+        if (conversationChanged) {
+          this.manualTrimApplied = false;
+          this.trimSuppressed = false;
+          this.trimAppliedSignature = resolveTrimSignature(SETTINGS);
+        }
         this.attachScrollContainer(scrollContainer);
         this.boundUrl = location.href;
       }
 
       this.clearRetry();
+      this.syncTrimState();
 
-      const scopedMessages = messages.length > 0 ? messages : this.getMessagesInContainer(scrollContainer);
+      const scopedMessages = this.getMessagesInContainer(scrollContainer);
       const snapshotChanged = containerChanged || this.hasSnapshotChanged(scopedMessages);
 
       if (snapshotChanged) {
@@ -932,11 +991,153 @@
       return findUserMessages(scrollContainer);
     }
 
+    getTrimRoot() {
+      if (this.scrollContainer && this.scrollContainer.isConnected) {
+        return this.scrollContainer;
+      }
+
+      return document;
+    }
+
+    isTrimSupported() {
+      return currentPlatform === 'chatgpt';
+    }
+
+    setTrimmedState(el, shouldHide) {
+      if (!(el instanceof HTMLElement)) {
+        return;
+      }
+
+      el.classList.toggle(TRIMMED_CLASS, shouldHide);
+      if (shouldHide) {
+        el.setAttribute('data-chatdot-trimmed', 'true');
+      } else {
+        el.removeAttribute('data-chatdot-trimmed');
+      }
+    }
+
+    restoreTrimmedConversation(options = {}) {
+      const suppress = Boolean(options.suppress);
+      document.querySelectorAll(`.${TRIMMED_CLASS}`).forEach((el) => {
+        this.setTrimmedState(el, false);
+      });
+      this.manualTrimApplied = false;
+      this.trimSuppressed = suppress;
+      this.trimAppliedSignature = resolveTrimSignature(SETTINGS);
+
+      return this.updateTrimStats();
+    }
+
+    updateTrimStats() {
+      const root = this.getTrimRoot();
+      const totalMessages = findUserMessages(root, { includeTrimmed: true });
+      const visibleMessages = findUserMessages(root);
+      const keepWindow = resolveTrimWindow(totalMessages.length, SETTINGS.trimKeepTurns);
+
+      this.trimStats = {
+        supported: this.isTrimSupported(),
+        enabled: SETTINGS.trimEnabled || this.manualTrimApplied,
+        keep: keepWindow.keep,
+        total: keepWindow.total,
+        visible: visibleMessages.length,
+        hidden: keepWindow.total - visibleMessages.length,
+        applied: keepWindow.total - visibleMessages.length > 0,
+      };
+
+      return { ...this.trimStats };
+    }
+
+    applyTrim(options = {}) {
+      if (!this.isTrimSupported()) {
+        return this.updateTrimStats();
+      }
+
+      this.manualTrimApplied = Boolean(options.manual) && !SETTINGS.trimEnabled;
+      this.trimSuppressed = false;
+      const root = this.getTrimRoot();
+      const allMessages = findUserMessages(root, { includeTrimmed: true });
+      const keepWindow = resolveTrimWindow(allMessages.length, SETTINGS.trimKeepTurns);
+      const turns = findConversationTurns(root);
+
+      if (keepWindow.hidden <= 0 || !allMessages[keepWindow.start]) {
+        return this.restoreTrimmedConversation();
+      }
+
+      const cutoffTurn = getConversationTurnElement(allMessages[keepWindow.start]);
+      if (!cutoffTurn) {
+        return this.updateTrimStats();
+      }
+
+      if (turns.length > 0) {
+        turns.forEach((turn) => {
+          const shouldHide = turn !== cutoffTurn
+            && Boolean(turn.compareDocumentPosition(cutoffTurn) & Node.DOCUMENT_POSITION_FOLLOWING);
+          this.setTrimmedState(turn, shouldHide);
+        });
+      } else {
+        allMessages.forEach((message, index) => {
+          this.setTrimmedState(message, index < keepWindow.start);
+        });
+      }
+
+      this.trimAppliedSignature = resolveTrimSignature(SETTINGS);
+
+      return this.updateTrimStats();
+    }
+
+    syncTrimState(options = {}) {
+      const forceApply = Boolean(options.forceApply);
+      const previousTotal = this.trimStats?.total || 0;
+      const currentSignature = resolveTrimSignature(SETTINGS);
+
+      if (!this.isTrimSupported()) {
+        return this.restoreTrimmedConversation({ suppress: false });
+      }
+
+      if (!SETTINGS.trimEnabled && !this.manualTrimApplied) {
+        return this.restoreTrimmedConversation({ suppress: false });
+      }
+
+      const currentStats = this.updateTrimStats();
+      if (this.manualTrimApplied) {
+        if (this.trimAppliedSignature !== currentSignature) {
+          return this.applyTrim({ manual: true });
+        }
+        if (!currentStats.applied) {
+          return this.applyTrim({ manual: true });
+        }
+        return currentStats;
+      }
+
+      if (this.trimAppliedSignature !== currentSignature && !this.trimSuppressed) {
+        return this.applyTrim();
+      }
+
+      if (shouldApplyTrim({
+        forceApply,
+        trimSuppressed: this.trimSuppressed,
+        autoApply: SETTINGS.trimAutoApply,
+        previousTotal,
+        currentTotal: currentStats.total,
+        applied: currentStats.applied,
+      })) {
+        return this.applyTrim();
+      }
+
+      return currentStats;
+    }
+
+    getTrimStats() {
+      return this.updateTrimStats();
+    }
+
     refreshCurrentConversation() {
       if (!this.scrollContainer || !this.scrollContainer.isConnected) {
         this.scheduleConversationSync(true, 0);
         return;
       }
+
+      this.syncTrimState();
 
       const scopedMessages = this.getMessagesInContainer(this.scrollContainer);
       if (this.hasSnapshotChanged(scopedMessages)) {
@@ -1366,6 +1567,7 @@
 
       this.clearRetry();
       this.detachScrollContainer();
+      this.restoreTrimmedConversation();
 
       if (this.bodyObserver) {
         this.bodyObserver.disconnect();
@@ -1416,66 +1618,121 @@
       this.boundUrl = '';
       this.initialized = false;
       this.localRefreshScheduled = false;
+      this.trimStats = {
+        supported: currentPlatform === 'chatgpt',
+        enabled: SETTINGS.trimEnabled,
+        keep: Math.max(1, Number.parseInt(SETTINGS.trimKeepTurns, 10) || 10),
+        total: 0,
+        visible: 0,
+        hidden: 0,
+        applied: false,
+      };
+      this.manualTrimApplied = false;
+      this.trimSuppressed = false;
+      this.trimAppliedSignature = resolveTrimSignature(SETTINGS);
     }
   }
 
   if (chrome?.runtime?.onMessage) {
-    chrome.runtime.onMessage.addListener((msg) => {
-      if (msg.type !== 'settingsChanged') {
-        return;
+    chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+      if (!msg?.type) {
+        return undefined;
       }
 
-      Promise.resolve().then(async () => {
-        if (msg.enabled !== undefined) SETTINGS.enabled = msg.enabled;
-        if (msg.scrollMode !== undefined) SETTINGS.scrollMode = msg.scrollMode;
-        if (msg.showPreview !== undefined) SETTINGS.showPreview = msg.showPreview;
-        if (msg.showOutline !== undefined) SETTINGS.showOutline = msg.showOutline;
-        if (msg.language !== undefined) {
-          SETTINGS.language = msg.language;
-          await syncMessages(msg.language);
-        }
-        if (msg.themeMode !== undefined) {
-          SETTINGS.themeMode = msg.themeMode;
-          applyThemeMode(msg.themeMode);
-        }
-
-        const nav = window.__chatdotNav;
-        if (!nav) {
-          return;
-        }
-
-        if (msg.enabled !== undefined) {
-          if (SETTINGS.enabled) {
-            nav.init();
-          } else {
-            nav.destroy();
+      if (msg.type === 'settingsChanged') {
+        Promise.resolve().then(async () => {
+          if (msg.enabled !== undefined) SETTINGS.enabled = msg.enabled;
+          if (msg.scrollMode !== undefined) SETTINGS.scrollMode = msg.scrollMode;
+          if (msg.showPreview !== undefined) SETTINGS.showPreview = msg.showPreview;
+          if (msg.showOutline !== undefined) SETTINGS.showOutline = msg.showOutline;
+          if (msg.trimKeepTurns !== undefined) SETTINGS.trimKeepTurns = Math.max(1, Number.parseInt(msg.trimKeepTurns, 10) || 1);
+          if (msg.trimAutoApply !== undefined) SETTINGS.trimAutoApply = msg.trimAutoApply;
+          SETTINGS.trimEnabled = Boolean(SETTINGS.trimAutoApply);
+          if (msg.language !== undefined) {
+            SETTINGS.language = msg.language;
+            await syncMessages(msg.language);
           }
-          return;
-        }
-
-        if (!nav.container) {
-          return;
-        }
-
-        if (msg.language !== undefined) {
-          nav.applyLocalizedText();
-        }
-
-        if (msg.showOutline !== undefined) {
-          if (nav.outlineToggleBtn) {
-            nav.outlineToggleBtn.style.display = SETTINGS.showOutline ? '' : 'none';
+          if (msg.themeMode !== undefined) {
+            SETTINGS.themeMode = msg.themeMode;
+            applyThemeMode(msg.themeMode);
           }
 
-          if (nav.outlinePanel) {
-            if (!SETTINGS.showOutline) {
-              nav.toggleOutline(false);
+          const nav = window.__chatdotNav;
+          if (!nav) {
+            return null;
+          }
+
+          if (msg.enabled !== undefined) {
+            if (SETTINGS.enabled) {
+              nav.init();
+            } else {
+              nav.destroy();
             }
-            nav.outlinePanel.style.display = SETTINGS.showOutline ? '' : 'none';
+            return nav.getTrimStats();
           }
-        }
 
-        nav.scheduleConversationSync(false, 0);
-      });
+          if (!nav.container) {
+            return nav.getTrimStats();
+          }
+
+          if (msg.language !== undefined) {
+            nav.applyLocalizedText();
+          }
+
+          if (msg.showOutline !== undefined) {
+            if (nav.outlineToggleBtn) {
+              nav.outlineToggleBtn.style.display = SETTINGS.showOutline ? '' : 'none';
+            }
+
+            if (nav.outlinePanel) {
+              if (!SETTINGS.showOutline) {
+                nav.toggleOutline(false);
+              }
+              nav.outlinePanel.style.display = SETTINGS.showOutline ? '' : 'none';
+            }
+          }
+
+          if (msg.trimKeepTurns !== undefined || msg.trimAutoApply !== undefined || msg.trimEnabled !== undefined) {
+            nav.syncTrimState();
+          }
+
+          nav.scheduleConversationSync(false, 0);
+          return nav.getTrimStats();
+        }).then((response) => {
+          sendResponse(response);
+        }).catch(() => {
+          sendResponse(null);
+        });
+
+        return true;
+      }
+
+      if (msg.type === 'trimApply' || msg.type === 'trimRestore' || msg.type === 'trimGetStats') {
+        Promise.resolve().then(() => {
+          const nav = window.__chatdotNav;
+          if (!nav) {
+            return null;
+          }
+
+          if (msg.type === 'trimApply') {
+            nav.applyTrim({ manual: true });
+            nav.scheduleConversationSync(false, 0);
+          } else if (msg.type === 'trimRestore') {
+            nav.restoreTrimmedConversation({ suppress: true });
+            nav.scheduleConversationSync(false, 0);
+          }
+
+          return nav.getTrimStats();
+        }).then((response) => {
+          sendResponse(response);
+        }).catch(() => {
+          sendResponse(null);
+        });
+
+        return true;
+      }
+
+      return undefined;
     });
   }
 

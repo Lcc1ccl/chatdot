@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-1.1.0-5ca8c8" alt="Version 1.1.0">
+  <img src="https://img.shields.io/badge/Version-1.2.0-5ca8c8" alt="Version 1.2.0">
   <img src="https://img.shields.io/badge/Manifest-V3-blue" alt="Manifest V3">
   <img src="https://img.shields.io/badge/License-MIT-green" alt="MIT License">
 </p>

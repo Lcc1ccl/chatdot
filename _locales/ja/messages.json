@@ -23,6 +23,60 @@
   "show_outline_desc": {
     "message": "会話インデックスを表示"
   },
+  "trim_history": {
+    "message": "スムーズモード"
+  },
+  "trim_history_desc": {
+    "message": "現在は ChatGPT のみ対応しており、長い会話の重さを軽減します"
+  },
+  "trim_keep_turns": {
+    "message": "保持件数"
+  },
+  "trim_keep_turns_desc": {
+    "message": "表示したまま残す件数を設定します"
+  },
+  "trim_auto_apply": {
+    "message": "自動圧縮"
+  },
+  "trim_auto_apply_desc": {
+    "message": "設定した件数だけが表示される状態を自動で維持します"
+  },
+  "trim_apply": {
+    "message": "手動で圧縮"
+  },
+  "trim_restore": {
+    "message": "表示を戻す"
+  },
+  "trim_stats_inactive": {
+    "message": "このページはまだ圧縮されていません"
+  },
+  "trim_stats_unsupported": {
+    "message": "このページでは会話圧縮をまだ利用できません"
+  },
+  "trim_stats_kept": {
+    "message": "現在表示"
+  },
+  "trim_stats_total": {
+    "message": "合計"
+  },
+  "trim_stats_hidden": {
+    "message": "非表示"
+  },
+  "trim_turn_unit": {
+    "message": "件"
+  },
+  "trim_more_settings": {
+    "message": "圧縮設定"
+  },
+  "trim_more_settings_desc": {
+    "message": "開くと保持件数と自動圧縮を設定できます"
+  },
+  "trim_auto_mode_off": {
+    "message": "オフ"
+  },
+  "trim_auto_mode_on": {
+    "message": "オン"
+  },
   "display_mode": {
     "message": "表示モード"
   },

@@ -228,18 +228,18 @@ def generate_small_promo(icon):
     draw.text((186, 82), "AI 对话导航", fill=PALETTE["text_primary"], font=title_font)
     draw.text(
         (186, 124),
-        "长对话不再来回翻找\n右侧一栏，直接跳到目标提问",
+        "长对话不再卡顿\n保留最近 10 轮，定位和预览都更轻快",
         fill=PALETTE["text_secondary"],
         font=body_font,
         spacing=6,
     )
-    draw.text((60, 188), "箭头侧栏", fill=PALETTE["mint_primary_deep"], font=feature_font)
+    draw.text((60, 188), "会话精简", fill=PALETTE["mint_primary_deep"], font=feature_font)
     draw.text((144, 188), "•", fill=PALETTE["mint_border_strong"], font=feature_font)
     draw.text((158, 188), "消息大纲", fill=PALETTE["mint_primary_deep"], font=feature_font)
     draw.text((246, 188), "•", fill=PALETTE["mint_border_strong"], font=feature_font)
-    draw.text((260, 188), "悬浮预览", fill=PALETTE["mint_primary_deep"], font=feature_font)
+    draw.text((260, 188), "恢复显示", fill=PALETTE["mint_primary_deep"], font=feature_font)
     draw.rounded_rectangle((60, 214, 280, 242), radius=14, fill=(247, 252, 250), outline=PALETTE["mint_border"], width=1)
-    draw.text((74, 220), "更多平台逐步接入中", fill=PALETTE["text_secondary"], font=badge_font)
+    draw.text((74, 220), "ChatGPT 支持精简，更多平台逐步接入", fill=PALETTE["text_secondary"], font=badge_font)
 
     output_path = OUT_DIR / "small_promo.jpg"
     image.save(output_path, quality=95)
@@ -267,17 +267,17 @@ def generate_marquee_promo(icon):
 
     draw.text((126, 90), "LIGHT MINT NAVIGATION", fill=PALETTE["mint_primary_deep"], font=eyebrow_font)
     draw.text((244, 110), "ChatDot", fill=PALETTE["text_primary"], font=title_font)
-    draw.text((128, 214), "长对话不再翻找", fill=PALETTE["text_primary"], font=headline_font)
+    draw.text((128, 214), "长对话导航 + 会话精简", fill=PALETTE["text_primary"], font=headline_font)
     draw.text(
         (128, 262),
-        "箭头侧栏精准跳转，打开大纲快速定位，\n悬浮预览不丢上下文。",
+        "箭头侧栏精准跳转，打开大纲快速定位，\nChatGPT 可只保留最近 10 轮，恢复显示也可一键完成。",
         fill=PALETTE["text_secondary"],
         font=subtitle_font,
         spacing=6,
     )
     draw.text(
         (128, 336),
-        "箭头导航  •  消息大纲  •  悬浮预览",
+        "会话精简  •  消息大纲  •  恢复显示",
         fill=PALETTE["text_muted"],
         font=feature_font,
     )
@@ -332,10 +332,10 @@ def generate_marquee_promo(icon):
         outline=PALETTE["mint_border"],
         width=2,
     )
-    draw.text((preview_x + 16, preview_y + 14), "Preview", fill=PALETTE["text_muted"], font=load_font(14, bold=True))
+    draw.text((preview_x + 16, preview_y + 14), "Trim Active", fill=PALETTE["text_muted"], font=load_font(14, bold=True))
     draw.text(
         (preview_x + 16, preview_y + 38),
-        "Jump to the previous user prompt\nwithout losing context.",
+        "Keep recent 10 turns visible\nRestore hidden history anytime.",
         fill=PALETTE["text_secondary"],
         font=load_font(18),
         spacing=4,

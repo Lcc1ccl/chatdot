@@ -20,60 +20,81 @@
     showPreview: true,
     showOutline: true,
     themeMode: 'system',
+    trimEnabled: false,
+    trimKeepTurns: 10,
+    trimAutoApply: false,
   };
 
   const CHANGELOG = {
     zh: [
       {
+        version: 'v1.2.0',
+        date: '2026-04-08',
+        items: [
+          'ChatGPT 长对话现在支持一键精简，只保留最近 N 轮，浏览更顺畅。',
+          '新增自动精简、手动精简和恢复显示，保留需要的上下文，同时减少页面负担。',
+          '大纲、计数和上下跳转会自动跟随当前可见内容，定位更直观。',
+        ],
+      },
+      {
         version: 'v1.1.0',
         date: '2026-04-07',
         items: [
-          '新增 Gemini / Claude / 豆包平台支持，更多平台逐步接入中',
-          '新增浅色 / 深色 / 跟随系统主题模式',
-          '优化 Popup 结构，补充版本内更新日志入口',
+          'ChatDot 现已支持 Gemini、Claude 和豆包，常用 AI 对话平台可以统一导航。',
+          '新增浅色、深色和跟随系统主题，侧栏在不同页面里更协调。',
+          '弹窗设置更清晰，并加入版本内更新日志入口。',
         ],
       },
       {
         version: 'v1.0.1',
         date: '2026-04-02',
         items: [
-          '优化导航滚动定位与高亮反馈',
-          '增强多语言设置与会话切换时的重初始化稳定性',
+          '导航定位和高亮反馈更稳定，快速跳转时更容易确认当前位置。',
+          '会话切换和语言设置的同步更稳，减少重新初始化时的闪动与错位。',
         ],
       },
       {
         version: 'v1.0.0',
         date: '2026-03-30',
         items: [
-          '首次发布 ChatDot',
-          '提供顶部 / 底部 / 上一条 / 下一条导航与悬浮预览',
+          'ChatDot 首次发布，为 AI 对话页带来右侧快捷导航。',
+          '支持顶部、底部、上一条、下一条跳转，以及悬浮预览和消息大纲。',
         ],
       },
     ],
     en: [
       {
+        version: 'v1.2.0',
+        date: '2026-04-08',
+        items: [
+          'ChatGPT conversations can now be trimmed down to the latest N turns for a smoother long-chat experience.',
+          'Added Auto Trim, Manual Trim, and Restore so you can reduce page weight without losing the context you need.',
+          'Outline, counters, and previous or next navigation now stay aligned with whatever is currently visible.',
+        ],
+      },
+      {
         version: 'v1.1.0',
         date: '2026-04-07',
         items: [
-          'Added support for Gemini, Claude, and Doubao, with more platforms being added over time.',
-          'Added Light, Dark, and System theme modes.',
-          'Refined the popup layout and added an in-popup changelog entry.',
+          'ChatDot now supports Gemini, Claude, and Doubao, bringing the same navigation workflow to more AI chat platforms.',
+          'Added Light, Dark, and System theme modes so the sidebar feels more at home on different sites.',
+          'The popup was reorganized for clearer settings, with an in-popup changelog entry for release updates.',
         ],
       },
       {
         version: 'v1.0.1',
         date: '2026-04-02',
         items: [
-          'Improved navigation scroll targeting and highlight feedback.',
-          'Stabilized language settings and SPA reinitialization behavior.',
+          'Scroll targeting and active highlight feedback were tightened up to make jumps easier to follow.',
+          'Language settings and SPA reinitialization became more stable during conversation switches.',
         ],
       },
       {
         version: 'v1.0.0',
         date: '2026-03-30',
         items: [
-          'Initial ChatDot release.',
-          'Included top, bottom, previous, next navigation and hover previews.',
+          'First public release of ChatDot, adding a compact right-side navigator to AI chat pages.',
+          'Included top, bottom, previous, next navigation, hover previews, and a message outline.',
         ],
       },
     ],
@@ -98,6 +119,37 @@
     return CHANGELOG[lang] || CHANGELOG.en;
   }
 
+  function isTrimStatsUnavailable(stats) {
+    return !stats || stats.supported === false;
+  }
+
+  function resolveTrimSettingsChange(current = {}, changes = {}) {
+    const next = {
+      trimEnabled: Boolean(current.trimAutoApply),
+      trimKeepTurns: current.trimKeepTurns,
+      trimAutoApply: Boolean(current.trimAutoApply),
+      ...changes,
+    };
+
+    next.trimAutoApply = Boolean(next.trimAutoApply);
+    next.trimEnabled = next.trimAutoApply;
+
+    return next;
+  }
+
+  function getTrimControlState(stats) {
+    const unavailable = isTrimStatsUnavailable(stats);
+    const canRestore = Boolean(stats?.applied || stats?.hidden > 0);
+
+    return {
+      unavailable,
+      keepDisabled: false,
+      autoDisabled: unavailable,
+      applyDisabled: unavailable,
+      restoreDisabled: unavailable || !canRestore,
+    };
+  }
+
   return {
     DEFAULTS,
     CHANGELOG,
@@ -107,5 +159,8 @@
     getTranslations,
     getStoreReviewUrl,
     getChangelogEntries,
+    getTrimControlState,
+    resolveTrimSettingsChange,
+    isTrimStatsUnavailable,
   };
 });

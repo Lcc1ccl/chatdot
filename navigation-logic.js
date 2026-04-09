@@ -90,6 +90,70 @@
     return clamp(Math.max(0, anchorTop - safeOffset), 0, maxScrollTop);
   }
 
+  function resolveTrimWindow(total, keep) {
+    const normalizedTotal = Math.max(0, Number.isFinite(total) ? Math.floor(total) : 0);
+    const normalizedKeep = Math.max(1, Number.isFinite(keep) ? Math.floor(keep) : 1);
+    const visible = normalizedTotal === 0 ? 0 : Math.min(normalizedTotal, normalizedKeep);
+    const start = Math.max(0, normalizedTotal - visible);
+
+    return {
+      total: normalizedTotal,
+      keep: normalizedKeep,
+      start,
+      visible,
+      hidden: normalizedTotal - visible,
+    };
+  }
+
+  function normalizeTrimKeepTurns(value) {
+    const parsed = Number.parseInt(value, 10);
+    if (!Number.isFinite(parsed)) {
+      return 1;
+    }
+
+    return Math.max(1, Math.floor(parsed));
+  }
+
+  function resolveTrimSignature(settings = {}) {
+    return [
+      Boolean(settings.trimEnabled) ? 1 : 0,
+      Boolean(settings.trimAutoApply) ? 1 : 0,
+      normalizeTrimKeepTurns(settings.trimKeepTurns),
+    ].join(':');
+  }
+
+  function shouldApplyTrim(options = {}) {
+    const forceApply = Boolean(options.forceApply);
+    const trimSuppressed = Boolean(options.trimSuppressed);
+    const autoApply = Boolean(options.autoApply);
+    const previousTotal = Math.max(0, options.previousTotal ?? 0);
+    const currentTotal = Math.max(0, options.currentTotal ?? 0);
+    const applied = Boolean(options.applied);
+    const hasNewTurns = currentTotal > previousTotal;
+
+    if (forceApply) {
+      return true;
+    }
+
+    if (trimSuppressed && !hasNewTurns) {
+      return false;
+    }
+
+    if (autoApply && hasNewTurns) {
+      return true;
+    }
+
+    if (!applied && !trimSuppressed) {
+      return true;
+    }
+
+    return false;
+  }
+
+  function shouldForceTrimOnSettingsChange(options = {}) {
+    return Boolean(options.trimEnabledChanged) && Boolean(options.trimEnabled);
+  }
+
   function requiresPostScrollSync(scrollMode) {
     return scrollMode === 'instant';
   }
@@ -189,6 +253,10 @@
     pickBestBindingCandidate,
     resolveActiveIndex,
     resolveAdjacentIndex,
+    resolveTrimWindow,
+    resolveTrimSignature,
+    shouldForceTrimOnSettingsChange,
+    shouldApplyTrim,
     resolveScrollStrategy,
     resolveScrollTarget,
     resolveVisualActiveIndex,

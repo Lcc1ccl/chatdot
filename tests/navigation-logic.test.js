@@ -4,6 +4,10 @@ const {
   pickBestBindingCandidate,
   resolveActiveIndex,
   resolveAdjacentIndex,
+  resolveTrimWindow,
+  resolveTrimSignature,
+  shouldForceTrimOnSettingsChange,
+  shouldApplyTrim,
   resolveScrollStrategy,
   resolveScrollTarget,
   resolveVisualActiveIndex,
@@ -110,4 +114,90 @@ run('pickBestBindingCandidate prefers the visible in-viewport container', () => 
   const result = pickBestBindingCandidate([hidden, visible]);
 
   assert.equal(result, visible);
+});
+
+run('resolveTrimWindow keeps only the latest visible turns', () => {
+  assert.deepEqual(resolveTrimWindow(50, 10), {
+    total: 50,
+    keep: 10,
+    start: 40,
+    visible: 10,
+    hidden: 40,
+  });
+});
+
+run('resolveTrimWindow never hides anything when keep count covers the conversation', () => {
+  assert.deepEqual(resolveTrimWindow(6, 10), {
+    total: 6,
+    keep: 10,
+    start: 0,
+    visible: 6,
+    hidden: 0,
+  });
+});
+
+run('resolveTrimWindow clamps invalid keep values to at least one turn', () => {
+  assert.deepEqual(resolveTrimWindow(5, 0), {
+    total: 5,
+    keep: 1,
+    start: 4,
+    visible: 1,
+    hidden: 4,
+  });
+});
+
+run('shouldApplyTrim keeps manual restore visible until the conversation grows', () => {
+  assert.equal(shouldApplyTrim({
+    forceApply: false,
+    trimSuppressed: true,
+    autoApply: true,
+    previousTotal: 50,
+    currentTotal: 50,
+    applied: false,
+  }), false);
+});
+
+run('shouldApplyTrim re-enables auto trim after new turns arrive', () => {
+  assert.equal(shouldApplyTrim({
+    forceApply: false,
+    trimSuppressed: true,
+    autoApply: true,
+    previousTotal: 50,
+    currentTotal: 51,
+    applied: false,
+  }), true);
+});
+
+run('resolveTrimSignature normalizes trim settings before comparison', () => {
+  assert.equal(resolveTrimSignature({
+    trimEnabled: true,
+    trimAutoApply: false,
+    trimKeepTurns: '08',
+  }), '1:0:8');
+});
+
+run('resolveTrimSignature changes when trim auto-apply changes', () => {
+  assert.notEqual(resolveTrimSignature({
+    trimEnabled: false,
+    trimAutoApply: false,
+    trimKeepTurns: 10,
+  }), resolveTrimSignature({
+    trimEnabled: true,
+    trimAutoApply: true,
+    trimKeepTurns: 10,
+  }));
+});
+
+run('shouldForceTrimOnSettingsChange does not reapply trim when only keep count changes', () => {
+  assert.equal(shouldForceTrimOnSettingsChange({
+    trimEnabledChanged: false,
+    trimEnabled: true,
+  }), false);
+});
+
+run('shouldForceTrimOnSettingsChange reapplies trim when trim is explicitly enabled', () => {
+  assert.equal(shouldForceTrimOnSettingsChange({
+    trimEnabledChanged: true,
+    trimEnabled: true,
+  }), true);
 });
